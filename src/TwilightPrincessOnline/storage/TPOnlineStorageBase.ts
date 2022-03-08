@@ -12,6 +12,7 @@ export class TPOnlineStorageBase {
 }
 export class QuestStorageBase implements IQuestStatus {
   constructor() { }
+  dominion_flag: number = 0;
   max_hp: number = 0;
   current_hp: number = 0;
   swordEquip: number = 0;
