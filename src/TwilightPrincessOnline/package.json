@@ -1,0 +1,17 @@
+{
+  "name": "TwilightPrincessOnline",
+  "version": "1.0.0",
+  "description": "",
+  "main": "TPOnline.js",
+  "author": "Psi-Hate",
+  "credits": "denoflions",
+  "license": "GPL-3.0",
+  "core": "TwilightPrincess",
+  "modloader64_deps": {
+    "TwilightPrincess": "https://github.com/hylian-modding/Core-TwilightPrincess.git"
+  },
+  "modloader64_aliases": {},
+  "dependencies": {
+    "bson": "^4.5.4"
+  }
+}

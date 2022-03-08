@@ -1,0 +1,22 @@
+{
+  "name": "TwilightPrincessOnline",
+  "version": "1.0.0",
+  "description": "Online mod for \"The Legend of Zelda: Twilight Princess\"",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hylian-modding/TwilightPrincessOnline.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hylian-modding/TwilightPrincessOnline/issues"
+  },
+  "homepage": "https://github.com/hylian-modding/TwilightPrincessOnline#readme"
+}
