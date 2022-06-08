@@ -1,2 +1,2 @@
 # TwilightPrincessOnline
- Online mod for "The Legned of Zelda: Twilight Princess"
+ Online mod for "The Legend of Zelda: Twilight Princess"
