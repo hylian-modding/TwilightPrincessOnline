@@ -112,7 +112,7 @@ export class TPOSaveData implements ISaveSyncData {
       this.processMixedLoop_OVERWRITE(obj.questStatus, storage.questStatus, [])
       this.processMixedLoop_OVERWRITE(obj.swords, storage.swords, []);
       this.processMixedLoop_OVERWRITE(obj.shields, storage.shields, []);
-
+      
       storage.questStatus.goldenBugs = obj.questStatus.goldenBugs;
       storage.inventory.fishingRod = obj.inventory.fishingRod;
       storage.inventory.clawshot = obj.inventory.clawshot;
@@ -131,6 +131,9 @@ export class TPOSaveData implements ISaveSyncData {
       storage.inventory.ooccoo = obj.inventory.sketch_memo;
       storage.inventory.skyBook = obj.inventory.skyBook;
 
+      storage.eventFlags = obj.eventFlags;
+      storage.regionFlags = obj.regionFlags;
+
     } catch (err: any) {
       console.log(err.stack);
     }
@@ -142,12 +145,12 @@ export class TPOSaveData implements ISaveSyncData {
       WWSerialize.deserialize(save).then((obj: ITPOSyncSave) => {
         //console.log(obj)
 
-        /* if (obj.questStatus.max_hp > storage.questStatus.max_hp && obj.questStatus.max_hp <= 100) {
+        if (obj.questStatus.max_hp > storage.questStatus.max_hp && obj.questStatus.max_hp <= 100) {
           storage.questStatus.max_hp = obj.questStatus.max_hp;
           bus.emit(TPOEvents.GAINED_PIECE_OF_HEART, {});
         }
         if (storage.questStatus.max_hp > 100) storage.questStatus.max_hp = 100;
-        */
+        
 
         this.processMixedLoop(obj.inventory, storage.inventory, ["addItemSlot", "getItem"]);
         this.processMixedLoop(obj.questStatus, storage.questStatus, [])

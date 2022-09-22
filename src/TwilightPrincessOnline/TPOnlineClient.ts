@@ -8,7 +8,7 @@ import { ModLoaderAPIInject } from "modloader64_api/ModLoaderAPIInjector";
 import { INetworkPlayer, LobbyData, NetworkHandler } from "modloader64_api/NetworkHandler";
 import { Preinit, Init, Postinit, onTick } from "modloader64_api/PluginLifecycle";
 import { ParentReference, SidedProxy, ProxySide } from "modloader64_api/SidedProxy/SidedProxy";
-import { TPO_UpdateSaveDataPacket, TPO_DownloadRequestPacket, TPO_ScenePacket, TPO_SceneRequestPacket, TPO_DownloadResponsePacket, TPO_BottleUpdatePacket, TPO_ErrorPacket, TPO_RoomPacket, TPO_RupeePacket, TPO_FlagUpdate } from "./network/TPOPackets";
+import { TPO_UpdateSaveDataPacket, TPO_DownloadRequestPacket, TPO_ScenePacket, TPO_SceneRequestPacket, TPO_DownloadResponsePacket, TPO_BottleUpdatePacket, TPO_ErrorPacket, TPO_RoomPacket, TPO_RupeePacket, TPO_EventFlagUpdate, TPO_RegionFlagUpdate, TPO_LiveFlagUpdate } from "./network/TPOPackets";
 import { ITPOnlineLobbyConfig, TPOnlineConfigCategory } from "./TPOnline";
 import { TPOSaveData } from "./save/TPOnlineSaveData";
 import { TPOnlineStorage } from "./storage/TPOnlineStorage";
@@ -87,6 +87,67 @@ export default class TPOnlineClient {
             this.ModLoader.clientSide.sendPacket(new TPO_UpdateSaveDataPacket(this.ModLoader.clientLobby, save, this.clientStorage.world));
             this.clientStorage.lastPushHash = this.clientStorage.saveManager.hash;
             this.syncTimer = 0;
+        }
+    }
+
+    updateFlags() {
+        if (this.core.helper.isTitleScreen() || !this.core.helper.isSceneNameValid() || this.core.helper.isPaused() || !this.clientStorage.first_time_sync) return;
+        let dSv_info_c = 0x804061C0;
+        let eventFlagsAddr = dSv_info_c + 0x7F0;
+        let eventFlags = Buffer.alloc(0x100);
+        let eventFlagByte = 0;
+        let eventFlagStorage = this.clientStorage.eventFlags;
+        //const indexBlacklist = [0x1, 0x2, 0x5, 0x7, 0x8, 0xE, 0xF, 0x24, 0x25, 0x2D, 0x2E, 0x34];
+
+        for (let i = 0; i < eventFlags.byteLength; i++) {
+            let eventFlagByteStorage = eventFlagStorage.readUInt8(i); //client storage bits
+            let bitArray: number[] = [];
+            for (let j = 0; j <= 7; j++) {
+                eventFlagByte = this.ModLoader.emulator.rdramRead8(eventFlagsAddr); //in-game bits
+                if (eventFlagByte !== eventFlagByteStorage) {
+                    eventFlagByte = (eventFlagByte |= eventFlagByteStorage)
+                    console.log(`Flag: 0x${i.toString(16)}, val: 0x${eventFlagByteStorage.toString(16)} -> 0x${eventFlagByte.toString(16)}`);
+                }
+                else if (eventFlagByte !== eventFlagByteStorage) //console.log(`indexBlacklist: 0x${i.toString(16)}`);
+                    eventFlagByteStorage = eventFlagByte; //client storage bits
+            }
+            eventFlags.writeUInt8(eventFlagByte, i);
+            eventFlagsAddr = eventFlagsAddr + 1;
+        }
+        if (!eventFlagStorage.equals(eventFlags)) {
+            this.clientStorage.eventFlags = eventFlags;
+            eventFlagStorage = eventFlags;
+            this.ModLoader.clientSide.sendPacket(new TPO_EventFlagUpdate(this.clientStorage.eventFlags, this.ModLoader.clientLobby));
+        }
+    }
+
+    //Regional Flags (dSv_memory_c)
+    updateRegionFlags() {
+        if (this.core.helper.isTitleScreen() || !this.core.helper.isSceneNameValid() || this.core.helper.isPaused() || !this.clientStorage.first_time_sync) return;
+        let dSv_info_c = 0x804061C0;
+        let regionFlagsAddr = dSv_info_c + 0x1F0;
+        let regionFlags = Buffer.alloc(0x400);
+        
+        regionFlags = this.core.save.regionFlags;
+        if(!regionFlags.equals(this.clientStorage.regionFlags)) {
+            this.clientStorage.regionFlags = regionFlags;
+            console.log("updateRegionFlags")
+            this.ModLoader.clientSide.sendPacket(new TPO_RegionFlagUpdate(this.clientStorage.regionFlags, this.ModLoader.clientLobby))
+        }
+    }
+
+    // dSv_memory_c dSv_memBit_c Flags?
+    updateLiveFlags() {
+        if (this.core.helper.isTitleScreen() || !this.core.helper.isSceneNameValid() || this.core.helper.isPaused() || !this.clientStorage.first_time_sync) return;
+        let dSv_info_c = 0x804061C0;
+        let liveFlagsAddr = dSv_info_c + 0x958;
+        let liveFlags = Buffer.alloc(0x20);
+        
+        liveFlags = this.core.save.liveFlags;
+        if(!liveFlags.equals(this.clientStorage.liveFlags)) {
+            this.clientStorage.liveFlags = liveFlags;
+            console.log("updateLiveFlags");
+            this.ModLoader.clientSide.sendPacket(new TPO_LiveFlagUpdate(this.clientStorage.liveFlags, this.ModLoader.clientLobby))
         }
     }
 
@@ -208,7 +269,7 @@ export default class TPOnlineClient {
 
     healPlayer() {
         if (this.core.helper.isTitleScreen() || !this.core.helper.isSceneNameValid()) return;
-        this.core.ModLoader.emulator.rdramWriteF32(0x803CA764, 80); //Number of quarter hearts to add to the player's HP this frame. Can be negative to damage the player.
+        this.core.save.questStatus.current_hp = (0.8 * this.core.save.questStatus.max_hp) //Number of quarter hearts
     }
 
     @EventHandler(TPOEvents.GAINED_PIECE_OF_HEART)
@@ -266,6 +327,51 @@ export default class TPOnlineClient {
         this.ModLoader.logger.error(packet.message);
     }
 
+    @NetworkHandler('TPO_FlagUpdate')
+    onFlagUpdate(packet: TPO_EventFlagUpdate) {
+        if (this.core.helper.isTitleScreen() || !this.core.helper.isSceneNameValid()) return;
+        console.log("onFlagUpdate Client");
+
+        for (let i = 0; i < packet.eventFlags.byteLength; i++) {
+            let tempByteIncoming = packet.eventFlags.readUInt8(i);
+            let tempByte = this.clientStorage.eventFlags.readUInt8(i);
+            //if (tempByteIncoming !== tempByte) console.log(`Writing flag: 0x${i.toString(16)}, tempByte: 0x${tempByte.toString(16)}, tempByteIncoming: 0x${tempByteIncoming.toString(16)} `);
+        }
+
+        parseFlagChanges(packet.eventFlags, this.clientStorage.eventFlags);
+        this.core.save.eventFlags = this.clientStorage.eventFlags;
+    }
+
+    @NetworkHandler('TPO_RegionFlagUpdate')
+    onRegionFlagUpdate(packet: TPO_RegionFlagUpdate) {
+        if (this.core.helper.isTitleScreen() || !this.core.helper.isSceneNameValid()) return;
+        console.log("onRegionFlagUpdate Client");
+
+        for (let i = 0; i < packet.regionFlags.byteLength; i++) {
+            let tempByteIncoming = packet.regionFlags.readUInt8(i);
+            let tempByte = this.clientStorage.regionFlags.readUInt8(i);
+            //if (tempByteIncoming !== tempByte) console.log(`Writing flag: 0x${i.toString(16)}, tempByte: 0x${tempByte.toString(16)}, tempByteIncoming: 0x${tempByteIncoming.toString(16)} `);
+        }
+        
+        parseFlagChanges(packet.regionFlags, this.clientStorage.regionFlags);
+        this.core.save.regionFlags = this.clientStorage.regionFlags;
+    }
+
+    @NetworkHandler('TPO_LiveFlagUpdate')
+    onLiveFlagUpdate(packet: TPO_LiveFlagUpdate) {
+        if (this.core.helper.isTitleScreen() || !this.core.helper.isSceneNameValid()) return;
+        console.log("onLiveFlagUpdate Client");
+
+        for (let i = 0; i < packet.liveFlags.byteLength; i++) {
+            let tempByteIncoming = packet.liveFlags.readUInt8(i);
+            let tempByte = this.clientStorage.liveFlags.readUInt8(i);
+            //if (tempByteIncoming !== tempByte) console.log(`Writing flag: 0x${i.toString(16)}, tempByte: 0x${tempByte.toString(16)}, tempByteIncoming: 0x${tempByteIncoming.toString(16)} `);
+        }
+        
+        parseFlagChanges(packet.liveFlags, this.clientStorage.liveFlags);
+        this.core.save.liveFlags = this.clientStorage.liveFlags;
+    }
+
     @onTick()
     onTick() {
         if (
@@ -286,5 +392,8 @@ export default class TPOnlineClient {
 
     inventoryUpdateTick() {
         this.updateInventory();
+        this.updateFlags();
+        this.updateRegionFlags();
+        this.updateLiveFlags();
     }
 }

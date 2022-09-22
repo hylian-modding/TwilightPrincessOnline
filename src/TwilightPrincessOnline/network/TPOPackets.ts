@@ -96,7 +96,7 @@ export class TPO_ErrorPacket extends Packet{
 
 }
 
-export class TPO_FlagUpdate extends Packet {
+export class TPO_EventFlagUpdate extends Packet {
   eventFlags: Buffer;
 
   constructor(
@@ -105,5 +105,29 @@ export class TPO_FlagUpdate extends Packet {
   ) {
     super('TPO_FlagUpdate', 'TPOnline', lobby, false);
     this.eventFlags = eventFlags;
+  }
+}
+
+export class TPO_RegionFlagUpdate extends Packet {
+  regionFlags: Buffer;
+
+  constructor(
+    regionFlags: Buffer,
+    lobby: string
+  ) {
+    super('TPO_RegionFlagUpdate', 'TPOnline', lobby, false);
+    this.regionFlags = regionFlags;
+  }
+}
+
+export class TPO_LiveFlagUpdate extends Packet {
+  liveFlags: Buffer;
+
+  constructor(
+    liveFlags: Buffer,
+    lobby: string
+  ) {
+    super('TPO_LiveFlagUpdate', 'TPOnline', lobby, false);
+    this.liveFlags = liveFlags;
   }
 }

@@ -18,6 +18,9 @@ class TPOSyncSaveServer implements ITPOSyncSaveServer {
   questStatus!: IQuestStatus;
   swords!: ISwords;
   shields!: IShields;
+  eventFlags: Buffer = Buffer.alloc(0x100);
+  regionFlags: Buffer = Buffer.alloc(0x400);
+  liveFlags: Buffer = Buffer.alloc(0x20);
 }
 
 export class TPOnlineSave_Server {

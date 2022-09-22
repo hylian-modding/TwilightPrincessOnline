@@ -7,7 +7,7 @@ import { ModLoaderAPIInject } from "modloader64_api/ModLoaderAPIInjector";
 import { IPacketHeader, LobbyData, ServerNetworkHandler } from "modloader64_api/NetworkHandler";
 import { Preinit } from "modloader64_api/PluginLifecycle";
 import { ParentReference, SidedProxy, ProxySide } from "modloader64_api/SidedProxy/SidedProxy";
-import { TPO_ScenePacket, TPO_DownloadRequestPacket, TPO_DownloadResponsePacket, TPO_UpdateSaveDataPacket, TPO_ErrorPacket, TPO_RoomPacket, TPO_BottleUpdatePacket, TPO_RupeePacket, TPO_FlagUpdate } from "./network/TPOPackets";
+import { TPO_ScenePacket, TPO_DownloadRequestPacket, TPO_DownloadResponsePacket, TPO_UpdateSaveDataPacket, TPO_ErrorPacket, TPO_RoomPacket, TPO_BottleUpdatePacket, TPO_RupeePacket, TPO_EventFlagUpdate, TPO_RegionFlagUpdate, TPO_LiveFlagUpdate } from "./network/TPOPackets";
 import { TPOSaveData } from "./save/TPOnlineSaveData";
 import { TPOnlineStorage, TPOnlineSave_Server } from "./storage/TPOnlineStorage";
 import TPSerialize from "./storage/TPSerialize";
@@ -164,7 +164,81 @@ export default class TPOnlineServer {
     // Flag Syncing
     //------------------------------
 
-    
+    @ServerNetworkHandler('TPO_FlagUpdate')
+    onFlagUpdate(packet: TPO_EventFlagUpdate) {
+        let storage: TPOnlineStorage = this.ModLoader.lobbyManager.getLobbyStorage(
+            packet.lobby,
+            this.parent
+        ) as TPOnlineStorage;
+        if (storage === null) {
+            return;
+        }
+
+        console.log("onFlagUpdate Server")
+
+        const indexBlacklist = [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x7, 0x8, 0x9, 0xE, 0xF, 0x24, 0x25, 0x2D, 0x2E, 0x34];
+
+        for (let i = 0; i < storage.eventFlags.byteLength; i++) {
+            let byteStorage = storage.eventFlags.readUInt8(i);
+            let bitsStorage = bitwise.byte.read(byteStorage as any);
+            let byteIncoming = packet.eventFlags.readUInt8(i);
+            let bitsIncoming = bitwise.byte.read(byteIncoming as any);
+
+            if (byteStorage !== byteIncoming) {
+                //console.log(`Server: Parsing flag: 0x${i.toString(16)}, byteIncoming: 0x${byteIncoming.toString(16)}, bitsIncoming: 0x${bitsIncoming} `);
+                parseFlagChanges(packet.eventFlags, storage.eventFlags);
+
+                let newByteStorage = bitwise.byte.write(bitsStorage); //write our updated bits into a byte
+                //console.log(`Server: Parsing flag: 0x${i.toString(16)}, byteStorage: 0x${byteStorage.toString(16)}, newByteStorage: 0x${newByteStorage.toString(16)} `);
+                if (newByteStorage !== byteStorage) {  //make sure the updated byte is different than the original
+                    byteStorage = newByteStorage;
+                    storage.eventFlags.writeUInt8(byteStorage, i); //write new byte into the event flag at index i
+                    //console.log(`Server: Parsing flag: 0x${i.toString(16)}, byteStorage: 0x${byteStorage.toString(16)}, newByteStorage: 0x${newByteStorage.toString(16)} `);
+                }
+            }
+        }
+
+        this.ModLoader.serverSide.sendPacket(new TPO_EventFlagUpdate(storage.eventFlags, packet.lobby));
+    }
+
+    @ServerNetworkHandler('TPO_RegionFlagUpdate')
+    onRegionFlagUpdate(packet: TPO_RegionFlagUpdate) {
+        let storage: TPOnlineStorage = this.ModLoader.lobbyManager.getLobbyStorage(
+            packet.lobby,
+            this.parent
+        ) as TPOnlineStorage;
+        if (storage === null) {
+            return;
+        }
+
+        console.log("onRegionFlagUpdate Server")
+
+        let regionFlagsStorage = storage.regionFlags;
+        parseFlagChanges(packet.regionFlags, regionFlagsStorage);
+        storage.regionFlags = regionFlagsStorage;
+
+        this.ModLoader.serverSide.sendPacket(new TPO_RegionFlagUpdate(storage.regionFlags, packet.lobby));
+    }
+
+    @ServerNetworkHandler('TPO_LiveFlagUpdate')
+    onLiveFlagUpdate(packet: TPO_LiveFlagUpdate) {
+        let storage: TPOnlineStorage = this.ModLoader.lobbyManager.getLobbyStorage(
+            packet.lobby,
+            this.parent
+        ) as TPOnlineStorage;
+        if (storage === null) {
+            return;
+        }
+
+        console.log("onLiveFlagUpdate Server")
+
+        let liveFlagsStorage = storage.liveFlags;
+        parseFlagChanges(packet.liveFlags, liveFlagsStorage);
+        storage.liveFlags = liveFlagsStorage;
+
+        this.ModLoader.serverSide.sendPacket(new TPO_LiveFlagUpdate(storage.liveFlags, packet.lobby));
+    }
+
     @ServerNetworkHandler('TPO_UpdateSaveDataPacket')
     onSceneFlagSync_server(packet: TPO_UpdateSaveDataPacket) {
         let storage: TPOnlineStorage = this.ModLoader.lobbyManager.getLobbyStorage(
