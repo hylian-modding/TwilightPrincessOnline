@@ -90,6 +90,7 @@ export default class TPOnlineClient {
         }
     }
 
+    //Event Flags
     updateFlags() {
         if (this.core.helper.isTitleScreen() || !this.core.helper.isSceneNameValid() || this.core.helper.isPaused() || !this.clientStorage.first_time_sync) return;
         let dSv_info_c = 0x804061C0;
@@ -106,7 +107,7 @@ export default class TPOnlineClient {
                 eventFlagByte = this.ModLoader.emulator.rdramRead8(eventFlagsAddr); //in-game bits
                 if (eventFlagByte !== eventFlagByteStorage) {
                     eventFlagByte = (eventFlagByte |= eventFlagByteStorage)
-                    console.log(`Flag: 0x${i.toString(16)}, val: 0x${eventFlagByteStorage.toString(16)} -> 0x${eventFlagByte.toString(16)}`);
+                    //console.log(`Flag: 0x${i.toString(16)}, val: 0x${eventFlagByteStorage.toString(16)} -> 0x${eventFlagByte.toString(16)}`);
                 }
                 else if (eventFlagByte !== eventFlagByteStorage) //console.log(`indexBlacklist: 0x${i.toString(16)}`);
                     eventFlagByteStorage = eventFlagByte; //client storage bits
@@ -142,13 +143,17 @@ export default class TPOnlineClient {
         let dSv_info_c = 0x804061C0;
         let liveFlagsAddr = dSv_info_c + 0x958;
         let liveFlags = Buffer.alloc(0x20);
-        
+        let regionFlagsAddr = dSv_info_c + 0x1F0;
+
         liveFlags = this.core.save.liveFlags;
         if(!liveFlags.equals(this.clientStorage.liveFlags)) {
             this.clientStorage.liveFlags = liveFlags;
             console.log("updateLiveFlags");
             this.ModLoader.clientSide.sendPacket(new TPO_LiveFlagUpdate(this.clientStorage.liveFlags, this.ModLoader.clientLobby))
+            this.ModLoader.emulator.rdramWriteBuffer(regionFlagsAddr + (this.core.global.current_stage_id * 0x20), this.clientStorage.liveFlags);
+            console.log('wrote LiveFlags to SaveFile');
         }
+        
     }
 
     //------------------------------
@@ -218,6 +223,7 @@ export default class TPOnlineClient {
                 )
             );
         }
+        this.clientStorage.liveFlags = this.core.save.liveFlags;
     }
 
     @EventHandler(TPEvents.ON_ROOM_CHANGE)

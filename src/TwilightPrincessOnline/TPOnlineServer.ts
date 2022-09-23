@@ -24,8 +24,6 @@ export default class TPOnlineServer {
     @ParentReference()
     parent!: IPlugin;
 
-    chao_data() { return 0 }
-
     sendPacketToPlayersInScene(packet: IPacketHeader) {
         try {
             let storage: TPOnlineStorage = this.ModLoader.lobbyManager.getLobbyStorage(
@@ -222,21 +220,7 @@ export default class TPOnlineServer {
 
     @ServerNetworkHandler('TPO_LiveFlagUpdate')
     onLiveFlagUpdate(packet: TPO_LiveFlagUpdate) {
-        let storage: TPOnlineStorage = this.ModLoader.lobbyManager.getLobbyStorage(
-            packet.lobby,
-            this.parent
-        ) as TPOnlineStorage;
-        if (storage === null) {
-            return;
-        }
-
-        console.log("onLiveFlagUpdate Server")
-
-        let liveFlagsStorage = storage.liveFlags;
-        parseFlagChanges(packet.liveFlags, liveFlagsStorage);
-        storage.liveFlags = liveFlagsStorage;
-
-        this.ModLoader.serverSide.sendPacket(new TPO_LiveFlagUpdate(storage.liveFlags, packet.lobby));
+        this.sendPacketToPlayersInScene(packet);
     }
 
     @ServerNetworkHandler('TPO_UpdateSaveDataPacket')
