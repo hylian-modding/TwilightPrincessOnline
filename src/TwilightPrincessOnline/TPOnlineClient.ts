@@ -128,9 +128,9 @@ export default class TPOnlineClient {
         let dSv_info_c = 0x804061C0;
         let regionFlagsAddr = dSv_info_c + 0x1F0;
         let regionFlags = Buffer.alloc(0x400);
-        
+
         regionFlags = this.core.save.regionFlags;
-        if(!regionFlags.equals(this.clientStorage.regionFlags)) {
+        if (!regionFlags.equals(this.clientStorage.regionFlags)) {
             this.clientStorage.regionFlags = regionFlags;
             console.log("updateRegionFlags")
             this.ModLoader.clientSide.sendPacket(new TPO_RegionFlagUpdate(this.clientStorage.regionFlags, this.ModLoader.clientLobby))
@@ -139,21 +139,21 @@ export default class TPOnlineClient {
 
     // dSv_memory_c dSv_memBit_c Flags?
     updateLiveFlags() {
-        if (this.core.helper.isTitleScreen() || !this.core.helper.isSceneNameValid() || this.core.helper.isPaused() || !this.clientStorage.first_time_sync) return;
-        let dSv_info_c = 0x804061C0;
-        let liveFlagsAddr = dSv_info_c + 0x958;
-        let liveFlags = Buffer.alloc(0x20);
-        let regionFlagsAddr = dSv_info_c + 0x1F0;
+        if (!this.core.helper.isLoadingZone() && this.core.helper.isLinkControllable() && this.core.global.current_scene_frame > 120 && this.clientStorage.first_time_sync) {
+            let dSv_info_c = 0x804061C0;
+            let liveFlagsAddr = dSv_info_c + 0x958;
+            let liveFlags = Buffer.alloc(0x20);
+            let regionFlagsAddr = dSv_info_c + 0x1F0;
 
-        liveFlags = this.core.save.liveFlags;
-        if(!liveFlags.equals(this.clientStorage.liveFlags)) {
-            this.clientStorage.liveFlags = liveFlags;
-            console.log("updateLiveFlags");
-            this.ModLoader.clientSide.sendPacket(new TPO_LiveFlagUpdate(this.clientStorage.liveFlags, this.ModLoader.clientLobby))
-            this.ModLoader.emulator.rdramWriteBuffer(regionFlagsAddr + (this.core.global.current_stage_id * 0x20), this.clientStorage.liveFlags);
-            console.log('wrote LiveFlags to SaveFile');
+            liveFlags = this.core.save.liveFlags;
+            if (!liveFlags.equals(this.clientStorage.liveFlags)) {
+                this.clientStorage.liveFlags = liveFlags;
+                console.log("updateLiveFlags");
+                this.ModLoader.clientSide.sendPacket(new TPO_LiveFlagUpdate(this.clientStorage.liveFlags, this.ModLoader.clientLobby))
+                this.ModLoader.emulator.rdramWriteBuffer(regionFlagsAddr + (this.core.global.current_stage_id * 0x20), this.clientStorage.liveFlags);
+                //console.log('wrote LiveFlags to SaveFile');
+            }
         }
-        
     }
 
     //------------------------------
@@ -358,7 +358,7 @@ export default class TPOnlineClient {
             let tempByte = this.clientStorage.regionFlags.readUInt8(i);
             //if (tempByteIncoming !== tempByte) console.log(`Writing flag: 0x${i.toString(16)}, tempByte: 0x${tempByte.toString(16)}, tempByteIncoming: 0x${tempByteIncoming.toString(16)} `);
         }
-        
+
         parseFlagChanges(packet.regionFlags, this.clientStorage.regionFlags);
         this.core.save.regionFlags = this.clientStorage.regionFlags;
     }
@@ -373,7 +373,7 @@ export default class TPOnlineClient {
             let tempByte = this.clientStorage.liveFlags.readUInt8(i);
             //if (tempByteIncoming !== tempByte) console.log(`Writing flag: 0x${i.toString(16)}, tempByte: 0x${tempByte.toString(16)}, tempByteIncoming: 0x${tempByteIncoming.toString(16)} `);
         }
-        
+
         parseFlagChanges(packet.liveFlags, this.clientStorage.liveFlags);
         this.core.save.liveFlags = this.clientStorage.liveFlags;
     }

@@ -112,7 +112,7 @@ export class TPOSaveData implements ISaveSyncData {
       this.processMixedLoop_OVERWRITE(obj.questStatus, storage.questStatus, [])
       this.processMixedLoop_OVERWRITE(obj.swords, storage.swords, []);
       this.processMixedLoop_OVERWRITE(obj.shields, storage.shields, []);
-      
+
       storage.questStatus.goldenBugs = obj.questStatus.goldenBugs;
       storage.inventory.fishingRod = obj.inventory.fishingRod;
       storage.inventory.clawshot = obj.inventory.clawshot;
@@ -131,8 +131,8 @@ export class TPOSaveData implements ISaveSyncData {
       storage.inventory.ooccoo = obj.inventory.sketch_memo;
       storage.inventory.skyBook = obj.inventory.skyBook;
 
-      storage.eventFlags = obj.eventFlags;
-      storage.regionFlags = obj.regionFlags;
+      //storage.eventFlags = obj.eventFlags;
+      //storage.regionFlags = obj.regionFlags;
 
     } catch (err: any) {
       console.log(err.stack);
@@ -150,7 +150,7 @@ export class TPOSaveData implements ISaveSyncData {
           bus.emit(TPOEvents.GAINED_PIECE_OF_HEART, {});
         }
         if (storage.questStatus.max_hp > 100) storage.questStatus.max_hp = 100;
-        
+
 
         this.processMixedLoop(obj.inventory, storage.inventory, ["addItemSlot", "getItem"]);
         this.processMixedLoop(obj.questStatus, storage.questStatus, [])
@@ -158,7 +158,7 @@ export class TPOSaveData implements ISaveSyncData {
         this.processMixedLoop(obj.shields, storage.shields, []);
 
         let goldenBugs = storage.questStatus.goldenBugs;
-        
+
         parseFlagChanges(obj.questStatus.goldenBugs, goldenBugs);
 
         storage.questStatus.goldenBugs = goldenBugs;
@@ -175,9 +175,37 @@ export class TPOSaveData implements ISaveSyncData {
         if (obj.inventory.bottle3 !== storage.inventory.bottle3) storage.inventory.bottle3 = obj.inventory.bottle3;
         if (obj.inventory.bottle4 !== storage.inventory.bottle4) storage.inventory.bottle4 = obj.inventory.bottle4;
 
-        if (obj.inventory.bombBag1 !== storage.inventory.bombBag1) storage.inventory.bombBag1 = obj.inventory.bombBag1;
-        if (obj.inventory.bombBag2 !== storage.inventory.bombBag2) storage.inventory.bombBag2 = obj.inventory.bombBag2;
-        if (obj.inventory.bombBag3 !== storage.inventory.bombBag3) storage.inventory.bombBag3 = obj.inventory.bombBag3;
+        if (obj.inventory.bombBag1 !== storage.inventory.bombBag1) {
+          if(obj.inventory.bombBag1 !== InventoryItem.bombEmpty) {
+            storage.inventory.bombBag1 = obj.inventory.bombBag1;
+          }
+          else {
+            this.ModLoader.utils.setTimeoutFrames( ()=> {
+              storage.inventory.bombBag1 = obj.inventory.bombBag1
+            }, 60);
+          }
+        }
+        if (obj.inventory.bombBag2 !== storage.inventory.bombBag2) {
+          if(obj.inventory.bombBag2 !== InventoryItem.bombEmpty) {
+            storage.inventory.bombBag2 = obj.inventory.bombBag2;
+          }
+          else {
+            this.ModLoader.utils.setTimeoutFrames( ()=> {
+              storage.inventory.bombBag2 = obj.inventory.bombBag2
+            }, 60);
+          }
+        }
+        if (obj.inventory.bombBag3 !== storage.inventory.bombBag3) {
+          if(obj.inventory.bombBag3 !== InventoryItem.bombEmpty) {
+            storage.inventory.bombBag3 = obj.inventory.bombBag3;
+          }
+          else {
+            this.ModLoader.utils.setTimeoutFrames( ()=> {
+              storage.inventory.bombBag3 = obj.inventory.bombBag3
+            }, 60);
+          }
+        }
+        
         if (obj.inventory.ooccoo !== storage.inventory.ooccoo) storage.inventory.ooccoo = obj.inventory.ooccoo;
         if (obj.inventory.sketch_memo !== storage.inventory.sketch_memo) storage.inventory.ooccoo = obj.inventory.sketch_memo;
         if (obj.inventory.skyBook !== storage.inventory.skyBook) storage.inventory.skyBook = obj.inventory.skyBook;
