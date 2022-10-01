@@ -178,34 +178,19 @@ export class TPOSaveData implements ISaveSyncData {
         if (obj.inventory.bombBag1 !== storage.inventory.bombBag1) {
           if(obj.inventory.bombBag1 !== InventoryItem.bombEmpty) {
             storage.inventory.bombBag1 = obj.inventory.bombBag1;
-          }
-          else {
-            this.ModLoader.utils.setTimeoutFrames( ()=> {
-              storage.inventory.bombBag1 = obj.inventory.bombBag1
-            }, 60);
-          }
+          } else storage.inventory.bombBag1 = InventoryItem.bombNormal;
         }
         if (obj.inventory.bombBag2 !== storage.inventory.bombBag2) {
           if(obj.inventory.bombBag2 !== InventoryItem.bombEmpty) {
             storage.inventory.bombBag2 = obj.inventory.bombBag2;
-          }
-          else {
-            this.ModLoader.utils.setTimeoutFrames( ()=> {
-              storage.inventory.bombBag2 = obj.inventory.bombBag2
-            }, 60);
-          }
+          } else storage.inventory.bombBag2 = InventoryItem.bombNormal;
         }
         if (obj.inventory.bombBag3 !== storage.inventory.bombBag3) {
           if(obj.inventory.bombBag3 !== InventoryItem.bombEmpty) {
             storage.inventory.bombBag3 = obj.inventory.bombBag3;
-          }
-          else {
-            this.ModLoader.utils.setTimeoutFrames( ()=> {
-              storage.inventory.bombBag3 = obj.inventory.bombBag3
-            }, 60);
-          }
+          } else storage.inventory.bombBag3 = InventoryItem.bombNormal;
         }
-        
+
         if (obj.inventory.ooccoo !== storage.inventory.ooccoo) storage.inventory.ooccoo = obj.inventory.ooccoo;
         if (obj.inventory.sketch_memo !== storage.inventory.sketch_memo) storage.inventory.ooccoo = obj.inventory.sketch_memo;
         if (obj.inventory.skyBook !== storage.inventory.skyBook) storage.inventory.skyBook = obj.inventory.skyBook;

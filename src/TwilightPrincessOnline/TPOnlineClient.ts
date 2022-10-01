@@ -338,13 +338,51 @@ export default class TPOnlineClient {
         if (this.core.helper.isTitleScreen() || !this.core.helper.isSceneNameValid()) return;
         console.log("onFlagUpdate Client");
 
+        const indexBlacklist = [0x5, 0x15, 0x42];
+
         for (let i = 0; i < packet.eventFlags.byteLength; i++) {
             let tempByteIncoming = packet.eventFlags.readUInt8(i);
             let tempByte = this.clientStorage.eventFlags.readUInt8(i);
             //if (tempByteIncoming !== tempByte) console.log(`Writing flag: 0x${i.toString(16)}, tempByte: 0x${tempByte.toString(16)}, tempByteIncoming: 0x${tempByteIncoming.toString(16)} `);
         }
 
-        parseFlagChanges(packet.eventFlags, this.clientStorage.eventFlags);
+        for (let i = 0; i < this.clientStorage.eventFlags.byteLength; i++) {
+            let byteStorage = this.clientStorage.eventFlags.readUInt8(i);
+            let bitsStorage = bitwise.byte.read(byteStorage as any);
+            let byteIncoming = packet.eventFlags.readUInt8(i);
+            let bitsIncoming = bitwise.byte.read(byteIncoming as any);
+
+            if (!indexBlacklist.includes(i) && byteStorage !== byteIncoming) {
+                //console.log(`Parsing flag: 0x${i.toString(16)}, byteIncoming: 0x${byteIncoming.toString(16)}, bitsIncoming: 0x${bitsIncoming} `);
+                parseFlagChanges(packet.eventFlags, this.clientStorage.eventFlags);
+            }
+            else if (indexBlacklist.includes(i) && byteStorage !== byteIncoming) {
+                console.log(`indexBlacklist: 0x${i.toString(16)}`);
+                for (let j = 0; j <= 7; j++) {
+                    switch (i) {
+                        case 0x5: //Ilia & Collin kidnapped
+                            if (j !== 0) bitsStorage[j] = bitsIncoming[j];
+                            else console.log(`Blacklisted event: 0x${i.toString(16)}, bit: ${j}`)
+                            break;
+                        case 0x15: //Goats Day 2 Finished
+                            if (j !== 0) bitsStorage[j] = bitsIncoming[j];
+                            else console.log(`Blacklisted event: 0x${i.toString(16)}, bit: ${j}`)
+                            break;
+                        case 0x42: //Goats Day 3 Finished
+                            if (j !== 1) bitsStorage[j] = bitsIncoming[j];
+                            else console.log(`Blacklisted event: 0x${i.toString(16)}, bit: ${j}`)
+                            break;
+                    }
+                    let newByteStorage = bitwise.byte.write(bitsStorage); //write our updated bits into a byte
+                    //console.log(`Parsing flag: 0x${i.toString(16)}, byteStorage: 0x${byteStorage.toString(16)}, newByteStorage: 0x${newByteStorage.toString(16)} `);
+                    if (newByteStorage !== byteStorage) {  //make sure the updated byte is different than the original
+                        byteStorage = newByteStorage;
+                        this.clientStorage.eventFlags.writeUInt8(byteStorage, i); //write new byte into the event flag at index i
+                        //console.log(`Parsing flag: 0x${i.toString(16)}, byteStorage: 0x${byteStorage.toString(16)}, newByteStorage: 0x${newByteStorage.toString(16)} `);
+                    }
+                }
+            }
+        }
         this.core.save.eventFlags = this.clientStorage.eventFlags;
     }
 
