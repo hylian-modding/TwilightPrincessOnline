@@ -15,6 +15,8 @@ export class TPOnlineStorageBase {
 }
 export class QuestStorageBase implements IQuestStatus {
   constructor() { }
+  fusedShadow: Buffer = Buffer.alloc(0x1);
+  mirrorShard: Buffer = Buffer.alloc(0x1);
   dominion_flag: number = 0;
   max_hp: number = 0;
   current_hp: number = 0;
@@ -65,5 +67,5 @@ export class InventoryStorageBase implements IInventoryFields {
   bombs1: number = 0;
   bombs2: number = 0;
   bombs3: number = 0;
-
+  quiver: number = 0;
 }
