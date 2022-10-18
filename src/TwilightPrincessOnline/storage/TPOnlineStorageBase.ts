@@ -15,8 +15,18 @@ export class TPOnlineStorageBase {
 }
 export class QuestStorageBase implements IQuestStatus {
   constructor() { }
-  fusedShadow: Buffer = Buffer.alloc(0x1);
-  mirrorShard: Buffer = Buffer.alloc(0x1);
+  fusedShadow1: boolean = false;
+  fusedShadow2: boolean = false;
+  fusedShadow3: boolean = false;
+  mirrorShard1: boolean = false;
+  mirrorShard2: boolean = false;
+  mirrorShard3: boolean = false;
+  mirrorShard4: boolean = false;
+  ordonSword: boolean = false;
+  masterSword: boolean = false;
+  ordonShield: boolean = false;
+  woodenShield: boolean = false;
+  hylianShield: boolean = false;
   dominion_flag: number = 0;
   max_hp: number = 0;
   current_hp: number = 0;
@@ -38,6 +48,7 @@ export class QuestStorageBase implements IQuestStatus {
 
 export class InventoryStorageBase implements IInventoryFields {
   constructor() { }
+  bombCapacity: boolean = false;
   bottle1: API.InventoryItem = API.InventoryItem.NONE;
   bottle2: API.InventoryItem = API.InventoryItem.NONE;
   bottle3: API.InventoryItem = API.InventoryItem.NONE;

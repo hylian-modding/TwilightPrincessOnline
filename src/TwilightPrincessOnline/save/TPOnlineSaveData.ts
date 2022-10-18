@@ -110,8 +110,8 @@ export class TPOSaveData implements ISaveSyncData {
 
       this.processMixedLoop_OVERWRITE(obj.inventory, storage.inventory, ["addItemSlot", "getItem"]);
       this.processMixedLoop_OVERWRITE(obj.questStatus, storage.questStatus, [])
-      this.processMixedLoop_OVERWRITE(obj.swords, storage.swords, []);
-      this.processMixedLoop_OVERWRITE(obj.shields, storage.shields, []);
+      //this.processMixedLoop_OVERWRITE(obj.swords, storage.swords, []);
+      //this.processMixedLoop_OVERWRITE(obj.shields, storage.shields, []);
 
       storage.questStatus.goldenBugs = obj.questStatus.goldenBugs;
       storage.inventory.fishingRod = obj.inventory.fishingRod;
@@ -154,8 +154,8 @@ export class TPOSaveData implements ISaveSyncData {
 
         this.processMixedLoop(obj.inventory, storage.inventory, ["addItemSlot", "getItem"]);
         this.processMixedLoop(obj.questStatus, storage.questStatus, [])
-        this.processMixedLoop(obj.swords, storage.swords, []);
-        this.processMixedLoop(obj.shields, storage.shields, []);
+        //this.processMixedLoop(obj.swords, storage.swords, []);
+        //this.processMixedLoop(obj.shields, storage.shields, []);
 
         let goldenBugs = storage.questStatus.goldenBugs;
 

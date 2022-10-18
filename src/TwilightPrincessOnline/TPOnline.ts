@@ -66,7 +66,7 @@ class TwilightPrincessOnline implements IPlugin, ITPOnlineHelpers, IPluginServer
     }
 
     getServerURL(): string {
-        return "modloader64.com:9020";
+        return "modloader64.com:9040";
     }
 }
 
