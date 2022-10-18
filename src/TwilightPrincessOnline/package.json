@@ -10,6 +10,8 @@
   "modloader64_deps": {
     "TwilightPrincess": "https://github.com/hylian-modding/Core-TwilightPrincess.git"
   },
+  "updateUrl": "https://repo.modloader64.com/mods/TPO/update/update.json",
+  "devUrl": "https://repo.modloader64.com/mods/TPO/dev/update.json",
   "modloader64_aliases": {},
   "dependencies": {
     "bson": "^4.5.4"
