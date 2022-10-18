@@ -1,6 +1,6 @@
 {
   "name": "TwilightPrincessOnline",
-  "version": "1.0.0",
+  "version": "1.0.0-nightly@323d4a9",
   "description": "",
   "main": "TPOnline.js",
   "author": "Psi-Hate",
@@ -13,5 +13,7 @@
   "modloader64_aliases": {},
   "dependencies": {
     "bson": "^4.5.4"
-  }
+  },
+  "date": "Tue, 18 Oct 2022 06:04:14 GMT",
+  "commit": "323d4a9"
 }
