@@ -314,7 +314,7 @@ export default class TPOnlineClient {
         this.ModLoader.logger.error(packet.message);
     }
 
-    @NetworkHandler('TPO_FlagUpdate')
+    @NetworkHandler('TPO_EventFlagUpdate')
     onFlagUpdate(packet: TPO_EventFlagUpdate) {
         console.log("onFlagUpdate Client");
         const indexBlacklist = [0x5, 0x15, 0x42];
