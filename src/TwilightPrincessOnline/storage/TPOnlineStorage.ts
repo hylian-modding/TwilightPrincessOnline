@@ -14,6 +14,39 @@ export interface ITPOSyncSaveServer extends ITPOSyncSave {
 }
 
 class TPOSyncSaveServer implements ITPOSyncSaveServer {
+  stage_Live!: API.IStageInfo;
+  stage0_Ordon!: API.IStageInfo;
+  stage1_Sewers!: API.IStageInfo;
+  stage2_Faron!: API.IStageInfo;
+  stage3_Eldin!: API.IStageInfo;
+  stage4_Laynaru!: API.IStageInfo;
+  stage5_Unk1!: API.IStageInfo;
+  stage6_CastleField!: API.IStageInfo;
+  stage7_SacredGrove!: API.IStageInfo;
+  stage8_Snowpeak!: API.IStageInfo;
+  stage9_CastleTown!: API.IStageInfo;
+  stageA_Gerudo!: API.IStageInfo;
+  stageB_FishingHole!: API.IStageInfo;
+  stageC_Unk2!: API.IStageInfo;
+  stageD_Unk3!: API.IStageInfo;
+  stageE_Unk4!: API.IStageInfo;
+  stageF_Unk5!: API.IStageInfo;
+  stage10_ForestTemple!: API.IStageInfo;
+  stage11_GoronMines!: API.IStageInfo;
+  stage12_LakebedTemple!: API.IStageInfo;
+  stage13_ArbitersGrounds!: API.IStageInfo;
+  stage14_SnowpeakRuins!: API.IStageInfo;
+  stage15_TempleOfTime!: API.IStageInfo;
+  stage16_CitySky!: API.IStageInfo;
+  stage17_PalaceTwilight!: API.IStageInfo;
+  stage18_HyruleCastle!: API.IStageInfo;
+  stage19_Cave1!: API.IStageInfo;
+  stage1A_Cave2!: API.IStageInfo;
+  stage1B_Grottos!: API.IStageInfo;
+  stage1C_Unk6!: API.IStageInfo;
+  stage1D_Unk7!: API.IStageInfo;
+  stage1E_Unk8!: API.IStageInfo;
+  stage1F_Unk9!: API.IStageInfo;
   inventory!: IInventory;
   questStatus!: IQuestStatus;
   swords!: ISwords;

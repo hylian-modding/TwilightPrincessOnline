@@ -9,4 +9,5 @@ export class TPOnlineStorageClient extends TPOnlineStorageBase {
   scene_keys: any = {};
   room_keys: any = {};
   flagHash: string = "";
+  autoSaveHash!: string;
 }

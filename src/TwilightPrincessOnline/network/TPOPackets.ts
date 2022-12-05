@@ -108,26 +108,26 @@ export class TPO_EventFlagUpdate extends Packet {
   }
 }
 
-export class TPO_RegionFlagUpdate extends Packet {
-  regionFlags: Buffer;
+export class TPO_ClientSceneContextUpdate extends Packet {
+  chests: Buffer;
+  switches: Buffer;
+  collect: Buffer;
+  stage: number;
+  world: number;
 
   constructor(
-    regionFlags: Buffer,
-    lobby: string
+    chests: Buffer,
+    switches: Buffer,
+    collect: Buffer,
+    lobby: string,
+    stage: number,
+    world: number
   ) {
-    super('TPO_RegionFlagUpdate', 'TPOnline', lobby, false);
-    this.regionFlags = regionFlags;
-  }
-}
-
-export class TPO_LiveFlagUpdate extends Packet {
-  liveFlags: Buffer;
-
-  constructor(
-    liveFlags: Buffer,
-    lobby: string
-  ) {
-    super('TPO_LiveFlagUpdate', 'TPOnline', lobby, false);
-    this.liveFlags = liveFlags;
+    super('TPO_ClientSceneContextUpdate', 'TPOnline', lobby, false);
+    this.chests = chests;
+    this.switches = switches;
+    this.collect = collect;
+    this.stage = stage;
+    this.world = world;
   }
 }

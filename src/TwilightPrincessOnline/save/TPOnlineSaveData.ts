@@ -26,8 +26,39 @@ export class TPOSaveData implements ISaveSyncData {
     let keys = [
       "inventory",
       "questStatus",
-      "swords",
-      "shields",
+      "eventFlags",
+      "stage0_Ordon",
+      "stage1_Sewers",
+      "stage2_Faron",
+      "stage3_Eldin",
+      "stage4_Laynaru",
+      "stage5_Unk1",
+      "stage6_CastleField",
+      "stage7_SacredGrove",
+      "stage8_Snowpeak",
+      "stage9_CastleTown",
+      "stageA_Gerudo",
+      "stageB_FishingHole",
+      "stageC_Unk2",
+      "stageD_Unk3",
+      "stageE_Unk4",
+      "stageF_Unk5",
+      "stage10_ForestTemple",
+      "stage11_GoronMines",
+      "stage12_LakebedTemple",
+      "stage13_ArbitersGrounds",
+      "stage14_SnowpeakRuins",
+      "stage15_TempleOfTime",
+      "stage16_CitySky",
+      "stage17_PalaceTwilight",
+      "stage18_HyruleCastle",
+      "stage19_Cave1",
+      "stage1A_Cave2",
+      "stage1B_Grottos",
+      "stage1C_Unk6",
+      "stage1D_Unk7",
+      "stage1E_Unk8",
+      "stage1F_Unk9",
     ];
 
     obj = JSON.parse(JSON.stringify(this.core.save));
@@ -69,6 +100,11 @@ export class TPOSaveData implements ISaveSyncData {
           obj2[key] = obj1[key];
           bus.emit(TPOEvents.SAVE_DATA_ITEM_SET, new TPOSaveDataItemSet(key, obj2[key]));
         }
+      } else if (Buffer.isBuffer(obj1[key])) {
+        let tempBuf = obj2[key];
+        parseFlagChanges(obj1[key], tempBuf);
+        obj2[key] = tempBuf;
+        bus.emit(TPOEvents.SAVE_DATA_ITEM_SET, new TPOSaveDataItemSet(key, obj2[key]));
       }
     });
   }
@@ -88,6 +124,10 @@ export class TPOSaveData implements ISaveSyncData {
         obj2[key] = obj1[key];
       } else if (typeof (obj1[key]) === 'number') {
         obj2[key] = obj1[key];
+      } else if (Buffer.isBuffer(obj1[key])) {
+        let tempBuf = obj1[key];
+        parseFlagChanges(obj2[key], tempBuf);
+        obj1[key] = tempBuf;
       }
     });
   }
@@ -131,8 +171,41 @@ export class TPOSaveData implements ISaveSyncData {
       storage.inventory.ooccoo = obj.inventory.sketch_memo;
       storage.inventory.skyBook = obj.inventory.skyBook;
 
-      //storage.eventFlags = obj.eventFlags;
-      //storage.regionFlags = obj.regionFlags;
+      storage.eventFlags = obj.eventFlags;
+
+      this.processMixedLoop_OVERWRITE(obj.stage0_Ordon, storage.stage0_Ordon, []);
+      this.processMixedLoop_OVERWRITE(obj.stage1_Sewers, storage.stage1_Sewers, []);
+      this.processMixedLoop_OVERWRITE(obj.stage2_Faron, storage.stage2_Faron, []);
+      this.processMixedLoop_OVERWRITE(obj.stage3_Eldin, storage.stage3_Eldin, []);
+      this.processMixedLoop_OVERWRITE(obj.stage4_Laynaru, storage.stage4_Laynaru, []);
+      this.processMixedLoop_OVERWRITE(obj.stage5_Unk1, storage.stage5_Unk1, []);
+      this.processMixedLoop_OVERWRITE(obj.stage6_CastleField, storage.stage6_CastleField, []);
+      this.processMixedLoop_OVERWRITE(obj.stage7_SacredGrove, storage.stage7_SacredGrove, []);
+      this.processMixedLoop_OVERWRITE(obj.stage8_Snowpeak, storage.stage8_Snowpeak, []);
+      this.processMixedLoop_OVERWRITE(obj.stage9_CastleTown, storage.stage9_CastleTown, []);
+      this.processMixedLoop_OVERWRITE(obj.stageA_Gerudo, storage.stageA_Gerudo, []);
+      this.processMixedLoop_OVERWRITE(obj.stageB_FishingHole, storage.stageB_FishingHole, []);
+      this.processMixedLoop_OVERWRITE(obj.stageC_Unk2, storage.stageC_Unk2, []);
+      this.processMixedLoop_OVERWRITE(obj.stageD_Unk3, storage.stageD_Unk3, []);
+      this.processMixedLoop_OVERWRITE(obj.stageE_Unk4, storage.stageE_Unk4, []);
+      this.processMixedLoop_OVERWRITE(obj.stageF_Unk5, storage.stageF_Unk5, []);
+      this.processMixedLoop_OVERWRITE(obj.stage10_ForestTemple, storage.stage10_ForestTemple, []);
+      this.processMixedLoop_OVERWRITE(obj.stage11_GoronMines, storage.stage11_GoronMines, []);
+      this.processMixedLoop_OVERWRITE(obj.stage12_LakebedTemple, storage.stage12_LakebedTemple, []);
+      this.processMixedLoop_OVERWRITE(obj.stage13_ArbitersGrounds, storage.stage13_ArbitersGrounds, []);
+      this.processMixedLoop_OVERWRITE(obj.stage14_SnowpeakRuins, storage.stage14_SnowpeakRuins, []);
+      this.processMixedLoop_OVERWRITE(obj.stage15_TempleOfTime, storage.stage15_TempleOfTime, []);
+      this.processMixedLoop_OVERWRITE(obj.stage16_CitySky, storage.stage16_CitySky, []);
+      this.processMixedLoop_OVERWRITE(obj.stage17_PalaceTwilight, storage.stage17_PalaceTwilight, []);
+      this.processMixedLoop_OVERWRITE(obj.stage18_HyruleCastle, storage.stage18_HyruleCastle, []);
+      this.processMixedLoop_OVERWRITE(obj.stage19_Cave1, storage.stage19_Cave1, []);
+      this.processMixedLoop_OVERWRITE(obj.stage1A_Cave2, storage.stage1A_Cave2, []);
+      this.processMixedLoop_OVERWRITE(obj.stage1B_Grottos, storage.stage1B_Grottos, []);
+      this.processMixedLoop_OVERWRITE(obj.stage1C_Unk6, storage.stage1C_Unk6, []);
+      this.processMixedLoop_OVERWRITE(obj.stage1D_Unk7, storage.stage1D_Unk7, []);
+      this.processMixedLoop_OVERWRITE(obj.stage1E_Unk8, storage.stage1E_Unk8, []);
+      this.processMixedLoop_OVERWRITE(obj.stage1F_Unk9, storage.stage1F_Unk9, []);
+
 
     } catch (err: any) {
       console.log(err.stack);
@@ -166,7 +239,10 @@ export class TPOSaveData implements ISaveSyncData {
         if (obj.inventory.fishingRod === InventoryItem.fishingRod || obj.inventory.fishingRod === InventoryItem.fishingRodEaring) {
           storage.inventory.fishingRod = obj.inventory.fishingRod;
         }
-        if (obj.inventory.clawshot > storage.inventory.clawshot) storage.inventory.clawshot = obj.inventory.clawshot;
+        
+        if(storage.inventory.clawshot === InventoryItem.NONE && obj.inventory.clawshot === InventoryItem.clawshot) storage.inventory.clawshot = obj.inventory.clawshot;
+        else if (storage.inventory.clawshot === InventoryItem.clawshot && obj.inventory.clawshot === InventoryItem.doubleClawshot) storage.inventory.clawshot = obj.inventory.clawshot;
+
         if (obj.inventory.ooccoo !== storage.inventory.ooccoo) storage.inventory.ooccoo = obj.inventory.ooccoo;
         if (obj.inventory.sketch_memo !== storage.inventory.sketch_memo) storage.inventory.sketch_memo = obj.inventory.sketch_memo;
         if (obj.inventory.skyBook !== storage.inventory.skyBook) storage.inventory.skyBook = obj.inventory.skyBook;
@@ -176,24 +252,93 @@ export class TPOSaveData implements ISaveSyncData {
         if (obj.inventory.bottle4 !== storage.inventory.bottle4) storage.inventory.bottle4 = obj.inventory.bottle4;
 
         if (obj.inventory.bombBag1 !== storage.inventory.bombBag1) {
-          if(obj.inventory.bombBag1 !== InventoryItem.bombEmpty) {
+          if (obj.inventory.bombBag1 !== InventoryItem.bombEmpty) {
             storage.inventory.bombBag1 = obj.inventory.bombBag1;
           } else storage.inventory.bombBag1 = InventoryItem.bombNormal;
+          switch (obj.inventory.bombBag1) {
+            case InventoryItem.bombNormal:
+              this.core.save.inventory.bombs1 = 30;
+              break;
+            case InventoryItem.bombWater:
+              this.core.save.inventory.bombs1 = 15;
+              break;
+            case InventoryItem.bombBug:
+              this.core.save.inventory.bombs1 = 10;
+              break;
+          }
         }
         if (obj.inventory.bombBag2 !== storage.inventory.bombBag2) {
-          if(obj.inventory.bombBag2 !== InventoryItem.bombEmpty) {
+          if (obj.inventory.bombBag2 !== InventoryItem.bombEmpty) {
             storage.inventory.bombBag2 = obj.inventory.bombBag2;
           } else storage.inventory.bombBag2 = InventoryItem.bombNormal;
+          switch (obj.inventory.bombBag2) {
+            case InventoryItem.bombNormal:
+              this.core.save.inventory.bombs2 = 30;
+              break;
+            case InventoryItem.bombWater:
+              this.core.save.inventory.bombs2 = 15;
+              break;
+            case InventoryItem.bombBug:
+              this.core.save.inventory.bombs2 = 10;
+              break;
+          }
         }
         if (obj.inventory.bombBag3 !== storage.inventory.bombBag3) {
-          if(obj.inventory.bombBag3 !== InventoryItem.bombEmpty) {
+          if (obj.inventory.bombBag3 !== InventoryItem.bombEmpty) {
             storage.inventory.bombBag3 = obj.inventory.bombBag3;
           } else storage.inventory.bombBag3 = InventoryItem.bombNormal;
+          switch (obj.inventory.bombBag3) {
+            case InventoryItem.bombNormal:
+              this.core.save.inventory.bombs3 = 30;
+              break;
+            case InventoryItem.bombWater:
+              this.core.save.inventory.bombs3 = 15;
+              break;
+            case InventoryItem.bombBug:
+              this.core.save.inventory.bombs3 = 10;
+              break;
+          }
         }
 
         if (obj.inventory.ooccoo !== storage.inventory.ooccoo) storage.inventory.ooccoo = obj.inventory.ooccoo;
         if (obj.inventory.sketch_memo !== storage.inventory.sketch_memo) storage.inventory.ooccoo = obj.inventory.sketch_memo;
         if (obj.inventory.skyBook !== storage.inventory.skyBook) storage.inventory.skyBook = obj.inventory.skyBook;
+
+
+        // Scene Flags
+
+        this.processMixedLoop(obj.stage0_Ordon, storage.stage0_Ordon, []);
+        this.processMixedLoop(obj.stage1_Sewers, storage.stage1_Sewers, []);
+        this.processMixedLoop(obj.stage2_Faron, storage.stage2_Faron, []);
+        this.processMixedLoop(obj.stage3_Eldin, storage.stage3_Eldin, []);
+        this.processMixedLoop(obj.stage4_Laynaru, storage.stage4_Laynaru, []);
+        this.processMixedLoop(obj.stage5_Unk1, storage.stage5_Unk1, []);
+        this.processMixedLoop(obj.stage6_CastleField, storage.stage6_CastleField, []);
+        this.processMixedLoop(obj.stage7_SacredGrove, storage.stage7_SacredGrove, []);
+        this.processMixedLoop(obj.stage8_Snowpeak, storage.stage8_Snowpeak, []);
+        this.processMixedLoop(obj.stage9_CastleTown, storage.stage9_CastleTown, []);
+        this.processMixedLoop(obj.stageA_Gerudo, storage.stageA_Gerudo, []);
+        this.processMixedLoop(obj.stageB_FishingHole, storage.stageB_FishingHole, []);
+        this.processMixedLoop(obj.stageC_Unk2, storage.stageC_Unk2, []);
+        this.processMixedLoop(obj.stageD_Unk3, storage.stageD_Unk3, []);
+        this.processMixedLoop(obj.stageE_Unk4, storage.stageE_Unk4, []);
+        this.processMixedLoop(obj.stageF_Unk5, storage.stageF_Unk5, []);
+        this.processMixedLoop(obj.stage10_ForestTemple, storage.stage10_ForestTemple, []);
+        this.processMixedLoop(obj.stage11_GoronMines, storage.stage11_GoronMines, []);
+        this.processMixedLoop(obj.stage12_LakebedTemple, storage.stage12_LakebedTemple, []);
+        this.processMixedLoop(obj.stage13_ArbitersGrounds, storage.stage13_ArbitersGrounds, []);
+        this.processMixedLoop(obj.stage14_SnowpeakRuins, storage.stage14_SnowpeakRuins, []);
+        this.processMixedLoop(obj.stage15_TempleOfTime, storage.stage15_TempleOfTime, []);
+        this.processMixedLoop(obj.stage16_CitySky, storage.stage16_CitySky, []);
+        this.processMixedLoop(obj.stage17_PalaceTwilight, storage.stage17_PalaceTwilight, []);
+        this.processMixedLoop(obj.stage18_HyruleCastle, storage.stage18_HyruleCastle, []);
+        this.processMixedLoop(obj.stage19_Cave1, storage.stage19_Cave1, []);
+        this.processMixedLoop(obj.stage1A_Cave2, storage.stage1A_Cave2, []);
+        this.processMixedLoop(obj.stage1B_Grottos, storage.stage1B_Grottos, []);
+        this.processMixedLoop(obj.stage1C_Unk6, storage.stage1C_Unk6, []);
+        this.processMixedLoop(obj.stage1D_Unk7, storage.stage1D_Unk7, []);
+        this.processMixedLoop(obj.stage1E_Unk8, storage.stage1E_Unk8, []);
+        this.processMixedLoop(obj.stage1F_Unk9, storage.stage1F_Unk9, []);
 
         accept(true);
       }).catch((err: string) => {

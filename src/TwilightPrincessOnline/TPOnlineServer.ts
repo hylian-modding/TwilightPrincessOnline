@@ -7,7 +7,7 @@ import { ModLoaderAPIInject } from "modloader64_api/ModLoaderAPIInjector";
 import { IPacketHeader, LobbyData, ServerNetworkHandler } from "modloader64_api/NetworkHandler";
 import { Preinit } from "modloader64_api/PluginLifecycle";
 import { ParentReference, SidedProxy, ProxySide } from "modloader64_api/SidedProxy/SidedProxy";
-import { TPO_ScenePacket, TPO_DownloadRequestPacket, TPO_DownloadResponsePacket, TPO_UpdateSaveDataPacket, TPO_ErrorPacket, TPO_RoomPacket, TPO_BottleUpdatePacket, TPO_RupeePacket, TPO_EventFlagUpdate, TPO_RegionFlagUpdate, TPO_LiveFlagUpdate } from "./network/TPOPackets";
+import { TPO_ScenePacket, TPO_DownloadRequestPacket, TPO_DownloadResponsePacket, TPO_UpdateSaveDataPacket, TPO_ErrorPacket, TPO_RoomPacket, TPO_BottleUpdatePacket, TPO_RupeePacket, TPO_EventFlagUpdate, TPO_ClientSceneContextUpdate } from "./network/TPOPackets";
 import { TPOSaveData } from "./save/TPOnlineSaveData";
 import { TPOnlineStorage, TPOnlineSave_Server } from "./storage/TPOnlineStorage";
 import TPSerialize from "./storage/TPSerialize";
@@ -162,7 +162,7 @@ export default class TPOnlineServer {
     // Flag Syncing
     //------------------------------
 
-    @ServerNetworkHandler('TPO_FlagUpdate')
+    @ServerNetworkHandler('TPO_EventFlagUpdate')
     onFlagUpdate(packet: TPO_EventFlagUpdate) {
         let storage: TPOnlineStorage = this.ModLoader.lobbyManager.getLobbyStorage(
             packet.lobby,
@@ -172,9 +172,9 @@ export default class TPOnlineServer {
             return;
         }
 
-        console.log("onFlagUpdate Server")
+        //console.log("onFlagUpdate Server")
 
-        const indexBlacklist = [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x7, 0x8, 0x9, 0xE, 0xF, 0x24, 0x25, 0x2D, 0x2E, 0x34];
+        const indexBlacklist = [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x7, 0x8, 0x9, 0xE, 0xF, 0x24, 0x25, 0x2D, 0x2E, 0x34, 0x9D];
 
         for (let i = 0; i < storage.eventFlags.byteLength; i++) {
             let byteStorage = storage.eventFlags.readUInt8(i);
@@ -182,10 +182,31 @@ export default class TPOnlineServer {
             let byteIncoming = packet.eventFlags.readUInt8(i);
             let bitsIncoming = bitwise.byte.read(byteIncoming as any);
 
-            if (byteStorage !== byteIncoming) {
+            if (!indexBlacklist.includes(i) && byteStorage !== byteIncoming) {
                 //console.log(`Server: Parsing flag: 0x${i.toString(16)}, byteIncoming: 0x${byteIncoming.toString(16)}, bitsIncoming: 0x${bitsIncoming} `);
-                parseFlagChanges(packet.eventFlags, storage.eventFlags);
+                byteStorage = byteStorage |= byteIncoming;
+                storage.eventFlags.writeUInt8(byteStorage, i); //write new byte into the event flag at index i
+                console.log(`Server: Parsing flag: 0x${i.toString(16)}, byteStorage: 0x${byteStorage.toString(16)}, byteIncoming: 0x${byteIncoming.toString(16)} `);
 
+            }
+            else if (indexBlacklist.includes(i) && byteStorage !== byteIncoming) {
+                //console.log(`Server: indexBlacklist: 0x${i.toString(16)}`);
+                for (let j = 0; j <= 7; j++) {
+                    switch (i) {
+                        case 0x5: //Ilia & Collin kidnapped
+                            if (j !== 0) bitsStorage[j] = bitsIncoming[j];
+                            else console.log(`Blacklisted event: 0x${i.toString(16)}, bit: ${j}`)
+                            break;
+                        case 0x15: //Goats Day 2 Finished
+                            if (j !== 0) bitsStorage[j] = bitsIncoming[j];
+                            else console.log(`Blacklisted event: 0x${i.toString(16)}, bit: ${j}`)
+                            break;
+                        case 0x42: //Goats Day 3 Finished
+                            if (j !== 1) bitsStorage[j] = bitsIncoming[j];
+                            else console.log(`Blacklisted event: 0x${i.toString(16)}, bit: ${j}`)
+                            break;
+                    }
+                }
                 let newByteStorage = bitwise.byte.write(bitsStorage); //write our updated bits into a byte
                 //console.log(`Server: Parsing flag: 0x${i.toString(16)}, byteStorage: 0x${byteStorage.toString(16)}, newByteStorage: 0x${newByteStorage.toString(16)} `);
                 if (newByteStorage !== byteStorage) {  //make sure the updated byte is different than the original
@@ -199,27 +220,9 @@ export default class TPOnlineServer {
         this.ModLoader.serverSide.sendPacket(new TPO_EventFlagUpdate(storage.eventFlags, packet.lobby));
     }
 
-    @ServerNetworkHandler('TPO_RegionFlagUpdate')
-    onRegionFlagUpdate(packet: TPO_RegionFlagUpdate) {
-        let storage: TPOnlineStorage = this.ModLoader.lobbyManager.getLobbyStorage(
-            packet.lobby,
-            this.parent
-        ) as TPOnlineStorage;
-        if (storage === null) {
-            return;
-        }
 
-        console.log("onRegionFlagUpdate Server")
-
-        let regionFlagsStorage = storage.regionFlags;
-        parseFlagChanges(packet.regionFlags, regionFlagsStorage);
-        storage.regionFlags = regionFlagsStorage;
-
-        this.ModLoader.serverSide.sendPacket(new TPO_RegionFlagUpdate(storage.regionFlags, packet.lobby));
-    }
-
-    @ServerNetworkHandler('TPO_LiveFlagUpdate')
-    onLiveFlagUpdate(packet: TPO_LiveFlagUpdate) {
+    @ServerNetworkHandler('TPO_ClientSceneContextUpdate')
+    onSceneContextSync_server(packet: TPO_ClientSceneContextUpdate) {
         this.sendPacketToPlayersInScene(packet);
     }
 
