@@ -103,7 +103,7 @@ export class TPO_EventFlagUpdate extends Packet {
     eventFlags: Buffer,
     lobby: string
   ) {
-    super('TPO_FlagUpdate', 'TPOnline', lobby, false);
+    super('TPO_EventFlagUpdate', 'TPOnline', lobby, false);
     this.eventFlags = eventFlags;
   }
 }

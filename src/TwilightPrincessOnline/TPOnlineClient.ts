@@ -316,6 +316,7 @@ export default class TPOnlineClient {
 
     @NetworkHandler('TPO_EventFlagUpdate')
     onFlagUpdate(packet: TPO_EventFlagUpdate) {
+        if(this.core.global.current_scene_name === "F_SP112") return;
         console.log("onFlagUpdate Client");
         const indexBlacklist = [0x5, 0x15, 0x42];
         for (let i = 0; i < packet.eventFlags.byteLength; i++) {
@@ -406,6 +407,7 @@ export default class TPOnlineClient {
     }
 
     inventoryUpdateTick() {
+        if(this.core.global.current_scene_name === "F_SP112") return;
         this.updateInventory();
         this.updateFlags();
     }

@@ -251,53 +251,14 @@ export class TPOSaveData implements ISaveSyncData {
         if (obj.inventory.bottle3 !== storage.inventory.bottle3) storage.inventory.bottle3 = obj.inventory.bottle3;
         if (obj.inventory.bottle4 !== storage.inventory.bottle4) storage.inventory.bottle4 = obj.inventory.bottle4;
 
-        if (obj.inventory.bombBag1 !== storage.inventory.bombBag1) {
-          if (obj.inventory.bombBag1 !== InventoryItem.bombEmpty) {
-            storage.inventory.bombBag1 = obj.inventory.bombBag1;
-          } else storage.inventory.bombBag1 = InventoryItem.bombNormal;
-          switch (obj.inventory.bombBag1) {
-            case InventoryItem.bombNormal:
-              this.core.save.inventory.bombs1 = 30;
-              break;
-            case InventoryItem.bombWater:
-              this.core.save.inventory.bombs1 = 15;
-              break;
-            case InventoryItem.bombBug:
-              this.core.save.inventory.bombs1 = 10;
-              break;
-          }
+        if(storage.inventory.bombBag1 === InventoryItem.NONE && obj.inventory.bombBag1 !== InventoryItem.NONE){
+          storage.inventory.bombBag1 = InventoryItem.bombEmpty;
         }
-        if (obj.inventory.bombBag2 !== storage.inventory.bombBag2) {
-          if (obj.inventory.bombBag2 !== InventoryItem.bombEmpty) {
-            storage.inventory.bombBag2 = obj.inventory.bombBag2;
-          } else storage.inventory.bombBag2 = InventoryItem.bombNormal;
-          switch (obj.inventory.bombBag2) {
-            case InventoryItem.bombNormal:
-              this.core.save.inventory.bombs2 = 30;
-              break;
-            case InventoryItem.bombWater:
-              this.core.save.inventory.bombs2 = 15;
-              break;
-            case InventoryItem.bombBug:
-              this.core.save.inventory.bombs2 = 10;
-              break;
-          }
+        if(storage.inventory.bombBag2 === InventoryItem.NONE && obj.inventory.bombBag2 !== InventoryItem.NONE){
+          storage.inventory.bombBag2 = InventoryItem.bombEmpty;
         }
-        if (obj.inventory.bombBag3 !== storage.inventory.bombBag3) {
-          if (obj.inventory.bombBag3 !== InventoryItem.bombEmpty) {
-            storage.inventory.bombBag3 = obj.inventory.bombBag3;
-          } else storage.inventory.bombBag3 = InventoryItem.bombNormal;
-          switch (obj.inventory.bombBag3) {
-            case InventoryItem.bombNormal:
-              this.core.save.inventory.bombs3 = 30;
-              break;
-            case InventoryItem.bombWater:
-              this.core.save.inventory.bombs3 = 15;
-              break;
-            case InventoryItem.bombBug:
-              this.core.save.inventory.bombs3 = 10;
-              break;
-          }
+        if(storage.inventory.bombBag3 === InventoryItem.NONE && obj.inventory.bombBag3 !== InventoryItem.NONE){
+          storage.inventory.bombBag3 = InventoryItem.bombEmpty;
         }
 
         if (obj.inventory.ooccoo !== storage.inventory.ooccoo) storage.inventory.ooccoo = obj.inventory.ooccoo;
