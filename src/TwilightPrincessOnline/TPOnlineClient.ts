@@ -119,12 +119,11 @@ export default class TPOnlineClient {
             live_scene_switches.copy(save, 0x8); // Switches
             live_scene_collect.copy(save, 0x18); // Collectables
             save[0x1C] = this.core.save.stage_Live.keys; // Key Count
-            save[0x1D] = this.core.save.stage_Live.dungeonItem; // mDungeonItem
 
             let save_hash_2: string = this.ModLoader.utils.hashBuffer(save);
             if (save_hash_2 !== this.clientStorage.autoSaveHash) {
                 this.ModLoader.logger.info('autosaveSceneData()');
-                save_scene_data.copy(save, 0x1E, 0x1E);
+                save_scene_data.copy(save, 0x1D, 0x1D);
                 for (let i = 0; i < save_scene_data.byteLength; i++) {
                     save_scene_data[i] |= save[i];
                 }
@@ -167,7 +166,7 @@ export default class TPOnlineClient {
     @EventHandler(TPEvents.ON_SAVE_LOADED)
     onSaveLoad(Scene: number) {
         if (!this.clientStorage.first_time_sync && !this.syncPending) {
-            
+
             this.ModLoader.utils.setTimeoutFrames(() => {
                 if (this.LobbyConfig.data_syncing) {
                     this.ModLoader.me.data["world"] = this.clientStorage.world;
@@ -316,41 +315,23 @@ export default class TPOnlineClient {
 
     @NetworkHandler('TPO_EventFlagUpdate')
     onFlagUpdate(packet: TPO_EventFlagUpdate) {
-        if(this.core.global.current_scene_name === "F_SP112") return;
+        if (
+            this.core.helper.isTitleScreen() ||
+            !this.core.helper.isSceneNameValid() ||
+            this.core.helper.isLoadingZone()
+        ) {
+            return;
+        }
         console.log("onFlagUpdate Client");
-        const indexBlacklist = [0x5, 0x15, 0x42];
-        for (let i = 0; i < packet.eventFlags.byteLength; i++) {
-            let byteStorage = this.clientStorage.eventFlags.readUInt8(i);
-            let bitsStorage = bitwise.byte.read(byteStorage as any);
-            let byteIncoming = packet.eventFlags.readUInt8(i);
-            let bitsIncoming = bitwise.byte.read(byteIncoming as any);
 
-            if (byteIncoming !== byteStorage && byteIncoming !== 0x0) {
-                if (indexBlacklist.includes(i)) {
-                    for (let j = 0; j <= 7; j++) {
-                        switch (i) {
-                            case 0x5: //Ilia & Collin kidnapped
-                                if (j !== 0) bitsStorage[j] = bitsIncoming[j];
-                                else console.log(`Blacklisted event: 0x${i.toString(16)}, bit: ${j}`)
-                                break;
-                            case 0x15: //Goats Day 2 Finished
-                                if (j !== 0) bitsStorage[j] = bitsIncoming[j];
-                                else console.log(`Blacklisted event: 0x${i.toString(16)}, bit: ${j}`)
-                                break;
-                            case 0x42: //Goats Day 3 Finished
-                                if (j !== 1) bitsStorage[j] = bitsIncoming[j];
-                                else console.log(`Blacklisted event: 0x${i.toString(16)}, bit: ${j}`)
-                                break;
-                        }
-                    }
-                }
-                else if (!indexBlacklist.includes(i)) {
-                    byteStorage = byteStorage |= byteIncoming;
-                }
-                this.clientStorage.eventFlags.writeUInt8(byteStorage, i);
-                console.log(`Writing flag: 0x${i.toString(16)}, storage: 0x${byteStorage.toString(16)}, incoming: 0x${byteIncoming.toString(16)} `);
+        for (let i = 0; i < packet.eventFlags.byteLength; i++) {
+            if (packet.eventFlags[i] !== this.clientStorage.eventFlags[i]) {
+                console.log(`Writing flag: 0x${i.toString(16)}, storage: 0x${this.clientStorage.eventFlags[i].toString(16)}, incoming: 0x${packet.eventFlags[i].toString(16)} `);
             }
         }
+        let eventFlags = this.clientStorage.eventFlags;
+        parseFlagChanges(packet.eventFlags, eventFlags);
+        this.clientStorage.eventFlags = eventFlags;
         this.core.save.eventFlags = this.clientStorage.eventFlags;
     }
 
@@ -380,7 +361,7 @@ export default class TPOnlineClient {
         let buf3: Buffer = this.core.save.stage_Live.items;
         if (Object.keys(parseFlagChanges(packet.collect, buf3) > 0)) {
             this.core.save.stage_Live.items = buf3;
-        } 
+        }
 
         // Update hash.
         this.clientStorage.saveManager.createSave();
@@ -407,7 +388,6 @@ export default class TPOnlineClient {
     }
 
     inventoryUpdateTick() {
-        if(this.core.global.current_scene_name === "F_SP112") return;
         this.updateInventory();
         this.updateFlags();
     }

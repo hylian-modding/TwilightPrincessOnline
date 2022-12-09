@@ -27,6 +27,16 @@ export class TPOSaveData implements ISaveSyncData {
       "inventory",
       "questStatus",
       "eventFlags",
+      "charloDonation",
+      "maloDonation",
+      "mapFlags",
+      "itemFlags",
+      "faronTears",
+      "eldinTears",
+      "lanayruTears",
+      "fusedShadowFlags",
+      "twilightMirrorFlags",
+      "letterFlags",
       "stage0_Ordon",
       "stage1_Sewers",
       "stage2_Faron",
@@ -149,15 +159,12 @@ export class TPOSaveData implements ISaveSyncData {
       let obj: ITPOSyncSave = WWSerialize.deserializeSync(save);
 
       this.processMixedLoop_OVERWRITE(obj.inventory, storage.inventory, ["addItemSlot", "getItem"]);
-      this.processMixedLoop_OVERWRITE(obj.questStatus, storage.questStatus, [])
-      //this.processMixedLoop_OVERWRITE(obj.swords, storage.swords, []);
-      //this.processMixedLoop_OVERWRITE(obj.shields, storage.shields, []);
+      this.processMixedLoop_OVERWRITE(obj.questStatus, storage.questStatus, []);
 
       storage.questStatus.goldenBugs = obj.questStatus.goldenBugs;
       storage.inventory.fishingRod = obj.inventory.fishingRod;
       storage.inventory.clawshot = obj.inventory.clawshot;
-      storage.inventory.ooccoo = obj.inventory.ooccoo;
-      storage.inventory.sketch_memo = obj.inventory.sketch_memo;
+      storage.inventory.questItem = obj.inventory.questItem;
       storage.inventory.skyBook = obj.inventory.skyBook;
       storage.inventory.bottle1 = obj.inventory.bottle1;
       storage.inventory.bottle2 = obj.inventory.bottle2;
@@ -168,10 +175,20 @@ export class TPOSaveData implements ISaveSyncData {
       storage.inventory.bombBag2 = obj.inventory.bombBag2;
       storage.inventory.bombBag3 = obj.inventory.bombBag3;
       storage.inventory.ooccoo = obj.inventory.ooccoo;
-      storage.inventory.ooccoo = obj.inventory.sketch_memo;
       storage.inventory.skyBook = obj.inventory.skyBook;
 
+      storage.charloDonation = obj.charloDonation;
+      storage.maloDonation = obj.maloDonation;
+      storage.faronTears = obj.faronTears;
+      storage.eldinTears = obj.eldinTears;
+      storage.lanayruTears = obj.lanayruTears;
+
       storage.eventFlags = obj.eventFlags;
+      storage.mapFlags = obj.mapFlags;
+      storage.itemFlags = obj.itemFlags;
+      storage.letterFlags = obj.letterFlags;
+      storage.fusedShadowFlags = obj.fusedShadowFlags;
+      storage.twilightMirrorFlags = obj.twilightMirrorFlags;
 
       this.processMixedLoop_OVERWRITE(obj.stage0_Ordon, storage.stage0_Ordon, []);
       this.processMixedLoop_OVERWRITE(obj.stage1_Sewers, storage.stage1_Sewers, []);
@@ -216,7 +233,6 @@ export class TPOSaveData implements ISaveSyncData {
   mergeSave(save: Buffer, storage: ITPOSyncSave, side: ProxySide): Promise<boolean> {
     return new Promise((accept, reject) => {
       WWSerialize.deserialize(save).then((obj: ITPOSyncSave) => {
-        //console.log(obj)
 
         if (obj.questStatus.max_hp > storage.questStatus.max_hp && obj.questStatus.max_hp <= 100) {
           storage.questStatus.max_hp = obj.questStatus.max_hp;
@@ -226,45 +242,65 @@ export class TPOSaveData implements ISaveSyncData {
 
 
         this.processMixedLoop(obj.inventory, storage.inventory, ["addItemSlot", "getItem"]);
-        this.processMixedLoop(obj.questStatus, storage.questStatus, [])
-        //this.processMixedLoop(obj.swords, storage.swords, []);
-        //this.processMixedLoop(obj.shields, storage.shields, []);
+        this.processMixedLoop(obj.questStatus, storage.questStatus, []);
 
+        if (storage.charloDonation < obj.charloDonation) storage.charloDonation = obj.charloDonation;
+        if (storage.maloDonation < obj.maloDonation) storage.maloDonation = obj.maloDonation;
+        if (storage.faronTears < obj.faronTears) storage.faronTears = obj.faronTears;
+        if (storage.eldinTears < obj.eldinTears) storage.eldinTears = obj.eldinTears;
+        if (storage.lanayruTears < obj.lanayruTears) storage.lanayruTears = obj.lanayruTears;
+
+        storage.mapFlags = obj.mapFlags;
+        storage.itemFlags = obj.itemFlags;
+        storage.letterFlags = obj.letterFlags;
+        storage.fusedShadowFlags = obj.fusedShadowFlags;
+        storage.twilightMirrorFlags = obj.twilightMirrorFlags;
+
+        let mapFlags = storage.mapFlags;
+        let itemFlags = storage.itemFlags;
+        let letterFlags = storage.letterFlags;
+        let fusedShadowFlags = storage.fusedShadowFlags;
+        let twilightMirrorFlags = storage.twilightMirrorFlags;
         let goldenBugs = storage.questStatus.goldenBugs;
 
+        parseFlagChanges(obj.mapFlags, mapFlags);
+        parseFlagChanges(obj.itemFlags, itemFlags);
+        parseFlagChanges(obj.letterFlags, letterFlags);
+        parseFlagChanges(obj.fusedShadowFlags, fusedShadowFlags);
+        parseFlagChanges(obj.twilightMirrorFlags, twilightMirrorFlags);
         parseFlagChanges(obj.questStatus.goldenBugs, goldenBugs);
 
+        storage.mapFlags = mapFlags;
+        storage.itemFlags = itemFlags;
+        storage.letterFlags = letterFlags;
+        storage.fusedShadowFlags = fusedShadowFlags;
+        storage.twilightMirrorFlags = twilightMirrorFlags;
         storage.questStatus.goldenBugs = goldenBugs;
 
         if (obj.inventory.fishingRod === InventoryItem.fishingRod || obj.inventory.fishingRod === InventoryItem.fishingRodEaring) {
           storage.inventory.fishingRod = obj.inventory.fishingRod;
         }
-        
-        if(storage.inventory.clawshot === InventoryItem.NONE && obj.inventory.clawshot === InventoryItem.clawshot) storage.inventory.clawshot = obj.inventory.clawshot;
+
+        if (storage.inventory.clawshot === InventoryItem.NONE && obj.inventory.clawshot === InventoryItem.clawshot) storage.inventory.clawshot = obj.inventory.clawshot;
         else if (storage.inventory.clawshot === InventoryItem.clawshot && obj.inventory.clawshot === InventoryItem.doubleClawshot) storage.inventory.clawshot = obj.inventory.clawshot;
 
         if (obj.inventory.ooccoo !== storage.inventory.ooccoo) storage.inventory.ooccoo = obj.inventory.ooccoo;
-        if (obj.inventory.sketch_memo !== storage.inventory.sketch_memo) storage.inventory.sketch_memo = obj.inventory.sketch_memo;
+        if (obj.inventory.questItem !== storage.inventory.questItem) storage.inventory.questItem = obj.inventory.questItem;
         if (obj.inventory.skyBook !== storage.inventory.skyBook) storage.inventory.skyBook = obj.inventory.skyBook;
         if (obj.inventory.bottle1 !== storage.inventory.bottle1) storage.inventory.bottle1 = obj.inventory.bottle1;
         if (obj.inventory.bottle2 !== storage.inventory.bottle2) storage.inventory.bottle2 = obj.inventory.bottle2;
         if (obj.inventory.bottle3 !== storage.inventory.bottle3) storage.inventory.bottle3 = obj.inventory.bottle3;
         if (obj.inventory.bottle4 !== storage.inventory.bottle4) storage.inventory.bottle4 = obj.inventory.bottle4;
 
-        if(storage.inventory.bombBag1 === InventoryItem.NONE && obj.inventory.bombBag1 !== InventoryItem.NONE){
+        if (storage.inventory.bombBag1 === InventoryItem.NONE && obj.inventory.bombBag1 !== InventoryItem.NONE) {
           storage.inventory.bombBag1 = InventoryItem.bombEmpty;
         }
-        if(storage.inventory.bombBag2 === InventoryItem.NONE && obj.inventory.bombBag2 !== InventoryItem.NONE){
+        if (storage.inventory.bombBag2 === InventoryItem.NONE && obj.inventory.bombBag2 !== InventoryItem.NONE) {
           storage.inventory.bombBag2 = InventoryItem.bombEmpty;
         }
-        if(storage.inventory.bombBag3 === InventoryItem.NONE && obj.inventory.bombBag3 !== InventoryItem.NONE){
+        if (storage.inventory.bombBag3 === InventoryItem.NONE && obj.inventory.bombBag3 !== InventoryItem.NONE) {
           storage.inventory.bombBag3 = InventoryItem.bombEmpty;
         }
-
-        if (obj.inventory.ooccoo !== storage.inventory.ooccoo) storage.inventory.ooccoo = obj.inventory.ooccoo;
-        if (obj.inventory.sketch_memo !== storage.inventory.sketch_memo) storage.inventory.ooccoo = obj.inventory.sketch_memo;
-        if (obj.inventory.skyBook !== storage.inventory.skyBook) storage.inventory.skyBook = obj.inventory.skyBook;
-
 
         // Scene Flags
 

@@ -9,7 +9,7 @@ export class TPOnlineStorageBase {
   networkPlayerInstances: any = {};
   inventoryStorage: InventoryStorageBase = new InventoryStorageBase();
   questStorage: QuestStorageBase = new QuestStorageBase();
-  eventFlags: Buffer = Buffer.alloc(0x100);
+  eventFlags: Buffer = Buffer.alloc(0xF0);
 }
 export class QuestStorageBase implements IQuestStatus {
   constructor() { }
@@ -46,7 +46,6 @@ export class QuestStorageBase implements IQuestStatus {
 
 export class InventoryStorageBase implements IInventoryFields {
   constructor() { }
-  bombCapacity: boolean = false;
   bottle1: API.InventoryItem = API.InventoryItem.NONE;
   bottle2: API.InventoryItem = API.InventoryItem.NONE;
   bottle3: API.InventoryItem = API.InventoryItem.NONE;
@@ -55,7 +54,7 @@ export class InventoryStorageBase implements IInventoryFields {
   bombBag2: API.InventoryItem = API.InventoryItem.NONE;
   bombBag3: API.InventoryItem = API.InventoryItem.NONE;
   ooccoo: API.InventoryItem = API.InventoryItem.NONE;
-  sketch_memo: API.InventoryItem = API.InventoryItem.NONE;
+  questItem: API.InventoryItem = API.InventoryItem.NONE;
   skyBook: API.InventoryItem = API.InventoryItem.NONE;
   galeBoomerang: boolean = false;
   lantern: boolean = false;
@@ -76,5 +75,4 @@ export class InventoryStorageBase implements IInventoryFields {
   bombs1: number = 0;
   bombs2: number = 0;
   bombs3: number = 0;
-  quiver: number = 0;
 }

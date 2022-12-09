@@ -14,6 +14,16 @@ export interface ITPOSyncSaveServer extends ITPOSyncSave {
 }
 
 class TPOSyncSaveServer implements ITPOSyncSaveServer {
+  charloDonation!: number;
+  maloDonation!: number;
+  mapFlags: Buffer = Buffer.alloc(0x200);
+  itemFlags: Buffer = Buffer.alloc(0x20);
+  fusedShadowFlags: Buffer = Buffer.alloc(0x1);
+  twilightMirrorFlags: Buffer = Buffer.alloc(0x1);
+  letterFlags: Buffer = Buffer.alloc(0x50);
+  faronTears!: number;
+  eldinTears!: number;
+  lanayruTears!: number;
   stage_Live!: API.IStageInfo;
   stage0_Ordon!: API.IStageInfo;
   stage1_Sewers!: API.IStageInfo;
@@ -51,7 +61,7 @@ class TPOSyncSaveServer implements ITPOSyncSaveServer {
   questStatus!: IQuestStatus;
   swords!: ISwords;
   shields!: IShields;
-  eventFlags: Buffer = Buffer.alloc(0x100);
+  eventFlags: Buffer = Buffer.alloc(0xF0);
   regionFlags: Buffer = Buffer.alloc(0x400);
   liveFlags: Buffer = Buffer.alloc(0x20);
 }

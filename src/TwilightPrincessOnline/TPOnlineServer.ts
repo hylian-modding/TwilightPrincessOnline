@@ -174,49 +174,21 @@ export default class TPOnlineServer {
 
         //console.log("onFlagUpdate Server")
 
-        const indexBlacklist = [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x7, 0x8, 0x9, 0xE, 0xF, 0x24, 0x25, 0x2D, 0x2E, 0x34, 0x9D];
+        let eventFlags = storage.eventFlags;
+        parseFlagChanges(packet.eventFlags, eventFlags);
+        
+        // Mask some bits out that are potential softlocks
+        eventFlags[0x5] &= 0x7F;  // Ilia & Collin kidnapped
+        eventFlags[0x15] &= 0x3F; // Goats Day 2 Finished || Warping in Lanayru Province disabled
+        eventFlags[0x1D] &= 0xFE; // Mini-map retracted (d-pad left or when there's no map)
+        eventFlags[0x1F] &= 0x0F; // Fyrus Boss has fight state flags in here?..
+        eventFlags[0x40] &= 0xFB; // Declined to help Rusl in N. Faron (OFF after saying yes)
+        eventFlags[0x42] &= 0xBF; // Goats Day 3 Finished
+        eventFlags[0x52] &= 0x00; // More Fyrus boss flags
+        eventFlags[0x61] &= 0xBF; // Returned to Ordon from Sewers (Midna Z disabled if ON)
+        eventFlags[0x5F] &= 0xF8; // Trill (Faron bird shopkeep) flags
 
-        for (let i = 0; i < storage.eventFlags.byteLength; i++) {
-            let byteStorage = storage.eventFlags.readUInt8(i);
-            let bitsStorage = bitwise.byte.read(byteStorage as any);
-            let byteIncoming = packet.eventFlags.readUInt8(i);
-            let bitsIncoming = bitwise.byte.read(byteIncoming as any);
-
-            if (!indexBlacklist.includes(i) && byteStorage !== byteIncoming) {
-                //console.log(`Server: Parsing flag: 0x${i.toString(16)}, byteIncoming: 0x${byteIncoming.toString(16)}, bitsIncoming: 0x${bitsIncoming} `);
-                byteStorage = byteStorage |= byteIncoming;
-                storage.eventFlags.writeUInt8(byteStorage, i); //write new byte into the event flag at index i
-                console.log(`Server: Parsing flag: 0x${i.toString(16)}, byteStorage: 0x${byteStorage.toString(16)}, byteIncoming: 0x${byteIncoming.toString(16)} `);
-
-            }
-            else if (indexBlacklist.includes(i) && byteStorage !== byteIncoming) {
-                //console.log(`Server: indexBlacklist: 0x${i.toString(16)}`);
-                for (let j = 0; j <= 7; j++) {
-                    switch (i) {
-                        case 0x5: //Ilia & Collin kidnapped
-                            if (j !== 0) bitsStorage[j] = bitsIncoming[j];
-                            else console.log(`Blacklisted event: 0x${i.toString(16)}, bit: ${j}`)
-                            break;
-                        case 0x15: //Goats Day 2 Finished
-                            if (j !== 0) bitsStorage[j] = bitsIncoming[j];
-                            else console.log(`Blacklisted event: 0x${i.toString(16)}, bit: ${j}`)
-                            break;
-                        case 0x42: //Goats Day 3 Finished
-                            if (j !== 1) bitsStorage[j] = bitsIncoming[j];
-                            else console.log(`Blacklisted event: 0x${i.toString(16)}, bit: ${j}`)
-                            break;
-                    }
-                }
-                let newByteStorage = bitwise.byte.write(bitsStorage); //write our updated bits into a byte
-                //console.log(`Server: Parsing flag: 0x${i.toString(16)}, byteStorage: 0x${byteStorage.toString(16)}, newByteStorage: 0x${newByteStorage.toString(16)} `);
-                if (newByteStorage !== byteStorage) {  //make sure the updated byte is different than the original
-                    byteStorage = newByteStorage;
-                    storage.eventFlags.writeUInt8(byteStorage, i); //write new byte into the event flag at index i
-                    //console.log(`Server: Parsing flag: 0x${i.toString(16)}, byteStorage: 0x${byteStorage.toString(16)}, newByteStorage: 0x${newByteStorage.toString(16)} `);
-                }
-            }
-        }
-
+        storage.eventFlags = eventFlags;
         this.ModLoader.serverSide.sendPacket(new TPO_EventFlagUpdate(storage.eventFlags, packet.lobby));
     }
 
