@@ -13,6 +13,7 @@ export class TPOnlineStorageBase {
 }
 export class QuestStorageBase implements IQuestStatus {
   constructor() { }
+  masterSwordTwilightFlag: boolean = false;
   fusedShadow1: boolean = false;
   fusedShadow2: boolean = false;
   fusedShadow3: boolean = false;

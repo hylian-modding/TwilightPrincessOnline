@@ -241,7 +241,7 @@ export class TPOSaveData implements ISaveSyncData {
         if (storage.questStatus.max_hp > 100) storage.questStatus.max_hp = 100;
 
 
-        this.processMixedLoop(obj.inventory, storage.inventory, ["addItemSlot", "getItem"]);
+        this.processMixedLoop(obj.inventory, storage.inventory, ["addItemSlot", "getItem", "bombBag1", "bombBag2", "bombBag3"]);
         this.processMixedLoop(obj.questStatus, storage.questStatus, []);
 
         if (storage.charloDonation < obj.charloDonation) storage.charloDonation = obj.charloDonation;
