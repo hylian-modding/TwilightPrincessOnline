@@ -1,7 +1,6 @@
 import { ITPOSyncSave } from '../types/TPAliases';
 import { TPOnlineStorageBase } from './TPOnlineStorageBase';
-import * as API from 'TwilightPrincess/API/imports';
-import { IInventory, IQuestStatus, IShields, ISwords } from 'TwilightPrincess/API/imports';
+import * as API from 'TwilightPrincess/API/Imports';
 
 export class TPOnlineStorage extends TPOnlineStorageBase {
   networkPlayerInstances: any = {};
@@ -57,10 +56,10 @@ class TPOSyncSaveServer implements ITPOSyncSaveServer {
   stage1D_Unk7!: API.IStageInfo;
   stage1E_Unk8!: API.IStageInfo;
   stage1F_Unk9!: API.IStageInfo;
-  inventory!: IInventory;
-  questStatus!: IQuestStatus;
-  swords!: ISwords;
-  shields!: IShields;
+  inventory!: API.IInventory;
+  questStatus!: API.IQuestStatus;
+  swords!: API.ISwords;
+  shields!: API.IShields;
   eventFlags: Buffer = Buffer.alloc(0xF0);
   regionFlags: Buffer = Buffer.alloc(0x400);
   liveFlags: Buffer = Buffer.alloc(0x20);
