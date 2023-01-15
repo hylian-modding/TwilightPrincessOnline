@@ -1,0 +1,24 @@
+package:
+  name: twilightprincessonline-nightly
+  version: {{ environ.get('MYPKG_VERSION', '') }}
+
+source:
+  fn: TwilightPrincessOnline.zip
+  url: ../dist/TwilightPrincessOnline_conda.zip
+
+build:
+  number: {{ environ.get('MYPKG_BUILD', '') }}
+  binary_relocation: False
+  detect_binary_files_with_prefix: False
+  noarch: generic
+  include_recipe: False
+  
+requirements:
+  run:
+    - twilightprincess-nightly
+    - bson
+
+about:
+  home: http://modloader64.com
+  license: GPL-3
+  summary: Twilight Princess Online for ML64
