@@ -37,7 +37,7 @@ export default class TPOnlineClient {
 
     syncContext: number = -1;
     syncTimer: number = 0;
-    synctimerMax: number = 60 * 20;
+    synctimerMax: number = 60 * 5;
     syncPending: boolean = false;
 
 
@@ -362,7 +362,6 @@ export default class TPOnlineClient {
         if (Object.keys(parseFlagChanges(packet.collect, buf3) > 0)) {
             this.core.save.stage_Live.items = buf3;
         }
-
         // Update hash.
         this.clientStorage.saveManager.createSave();
         this.clientStorage.lastPushHash = this.clientStorage.saveManager.hash;
