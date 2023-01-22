@@ -304,39 +304,83 @@ export class TPOSaveData implements ISaveSyncData {
 
         // Scene Flags
 
-        this.processMixedLoop(obj.stage0_Ordon, storage.stage0_Ordon, []);
-        this.processMixedLoop(obj.stage1_Sewers, storage.stage1_Sewers, []);
-        this.processMixedLoop(obj.stage2_Faron, storage.stage2_Faron, []);
-        this.processMixedLoop(obj.stage3_Eldin, storage.stage3_Eldin, []);
-        this.processMixedLoop(obj.stage4_Laynaru, storage.stage4_Laynaru, []);
-        this.processMixedLoop(obj.stage5_Unk1, storage.stage5_Unk1, []);
-        this.processMixedLoop(obj.stage6_CastleField, storage.stage6_CastleField, []);
-        this.processMixedLoop(obj.stage7_SacredGrove, storage.stage7_SacredGrove, []);
-        this.processMixedLoop(obj.stage8_Snowpeak, storage.stage8_Snowpeak, []);
-        this.processMixedLoop(obj.stage9_CastleTown, storage.stage9_CastleTown, []);
-        this.processMixedLoop(obj.stageA_Gerudo, storage.stageA_Gerudo, []);
-        this.processMixedLoop(obj.stageB_FishingHole, storage.stageB_FishingHole, []);
-        this.processMixedLoop(obj.stageC_Unk2, storage.stageC_Unk2, []);
-        this.processMixedLoop(obj.stageD_Unk3, storage.stageD_Unk3, []);
-        this.processMixedLoop(obj.stageE_Unk4, storage.stageE_Unk4, []);
-        this.processMixedLoop(obj.stageF_Unk5, storage.stageF_Unk5, []);
-        this.processMixedLoop(obj.stage10_ForestTemple, storage.stage10_ForestTemple, []);
-        this.processMixedLoop(obj.stage11_GoronMines, storage.stage11_GoronMines, []);
-        this.processMixedLoop(obj.stage12_LakebedTemple, storage.stage12_LakebedTemple, []);
-        this.processMixedLoop(obj.stage13_ArbitersGrounds, storage.stage13_ArbitersGrounds, []);
-        this.processMixedLoop(obj.stage14_SnowpeakRuins, storage.stage14_SnowpeakRuins, []);
-        this.processMixedLoop(obj.stage15_TempleOfTime, storage.stage15_TempleOfTime, []);
-        this.processMixedLoop(obj.stage16_CitySky, storage.stage16_CitySky, []);
-        this.processMixedLoop(obj.stage17_PalaceTwilight, storage.stage17_PalaceTwilight, []);
-        this.processMixedLoop(obj.stage18_HyruleCastle, storage.stage18_HyruleCastle, []);
-        this.processMixedLoop(obj.stage19_Cave1, storage.stage19_Cave1, []);
-        this.processMixedLoop(obj.stage1A_Cave2, storage.stage1A_Cave2, []);
-        this.processMixedLoop(obj.stage1B_Grottos, storage.stage1B_Grottos, []);
-        this.processMixedLoop(obj.stage1C_Unk6, storage.stage1C_Unk6, []);
-        this.processMixedLoop(obj.stage1D_Unk7, storage.stage1D_Unk7, []);
-        this.processMixedLoop(obj.stage1E_Unk8, storage.stage1E_Unk8, []);
-        this.processMixedLoop(obj.stage1F_Unk9, storage.stage1F_Unk9, []);
+        /*
+        storage.stage0_Ordon
+        storage.stage1_Sewers
+        storage.stage2_Faron
+        storage.stage3_Eldin
+        storage.stage4_Laynaru
+        storage.stage5_Unk1
+        storage.stage6_CastleField
+        storage.stage7_SacredGrove
+        storage.stage8_Snowpeak
+        storage.stage9_CastleTown
+        storage.stageA_Gerudo
+        storage.stageB_FishingHole
+        storage.stageC_Unk2
+        storage.stageD_Unk3
+        storage.stageE_Unk4
+        storage.stageF_Unk5
+        storage.stage10_ForestTemple
+        storage.stage11_GoronMines
+        storage.stage12_LakebedTemple
+        storage.stage13_ArbitersGrounds
+        storage.stage14_SnowpeakRuins
+        storage.stage15_TempleOfTime
+        storage.stage16_CitySky
+        storage.stage17_PalaceTwilight
+        storage.stage18_HyruleCastle
+        storage.stage19_Cave1
+        storage.stage1A_Cave2
+        storage.stage1B_Grottos
+        storage.stage1C_Unk6
+        storage.stage1D_Unk7
+        storage.stage1E_Unk8
+        storage.stage1F_Unk9
+        */
 
+        this.processMixedLoop(obj.stage0_Ordon, storage.stage0_Ordon, ["keys"]);
+        this.processMixedLoop(obj.stage1_Sewers, storage.stage1_Sewers, ["keys"]);
+        this.processMixedLoop(obj.stage2_Faron, storage.stage2_Faron, ["keys"]);
+        this.processMixedLoop(obj.stage3_Eldin, storage.stage3_Eldin, ["keys"]);
+        this.processMixedLoop(obj.stage4_Laynaru, storage.stage4_Laynaru, ["keys"]);
+        this.processMixedLoop(obj.stage5_Unk1, storage.stage5_Unk1, ["keys"]);
+        this.processMixedLoop(obj.stage6_CastleField, storage.stage6_CastleField, ["keys"]);
+        this.processMixedLoop(obj.stage7_SacredGrove, storage.stage7_SacredGrove, ["keys"]);
+        this.processMixedLoop(obj.stage8_Snowpeak, storage.stage8_Snowpeak, ["keys"]);
+        this.processMixedLoop(obj.stage9_CastleTown, storage.stage9_CastleTown, ["keys"]);
+        this.processMixedLoop(obj.stageA_Gerudo, storage.stageA_Gerudo, ["keys"]);
+        this.processMixedLoop(obj.stageB_FishingHole, storage.stageB_FishingHole, ["keys"]);
+        this.processMixedLoop(obj.stageC_Unk2, storage.stageC_Unk2, ["keys"]);
+        this.processMixedLoop(obj.stageD_Unk3, storage.stageD_Unk3, ["keys"]);
+        this.processMixedLoop(obj.stageE_Unk4, storage.stageE_Unk4, ["keys"]);
+        this.processMixedLoop(obj.stageF_Unk5, storage.stageF_Unk5, ["keys"]);
+        this.processMixedLoop(obj.stage10_ForestTemple, storage.stage10_ForestTemple, ["keys"]);
+        this.processMixedLoop(obj.stage11_GoronMines, storage.stage11_GoronMines, ["keys"]);
+        this.processMixedLoop(obj.stage12_LakebedTemple, storage.stage12_LakebedTemple, ["keys"]);
+        this.processMixedLoop(obj.stage13_ArbitersGrounds, storage.stage13_ArbitersGrounds, ["keys"]);
+        this.processMixedLoop(obj.stage14_SnowpeakRuins, storage.stage14_SnowpeakRuins, ["keys"]);
+        this.processMixedLoop(obj.stage15_TempleOfTime, storage.stage15_TempleOfTime, ["keys"]);
+        this.processMixedLoop(obj.stage16_CitySky, storage.stage16_CitySky, ["keys"]);
+        this.processMixedLoop(obj.stage17_PalaceTwilight, storage.stage17_PalaceTwilight, ["keys"]);
+        this.processMixedLoop(obj.stage18_HyruleCastle, storage.stage18_HyruleCastle, ["keys"]);
+        this.processMixedLoop(obj.stage19_Cave1, storage.stage19_Cave1, ["keys"]);
+        this.processMixedLoop(obj.stage1A_Cave2, storage.stage1A_Cave2, ["keys"]);
+        this.processMixedLoop(obj.stage1B_Grottos, storage.stage1B_Grottos, ["keys"]);
+        this.processMixedLoop(obj.stage1C_Unk6, storage.stage1C_Unk6, ["keys"]);
+        this.processMixedLoop(obj.stage1D_Unk7, storage.stage1D_Unk7, ["keys"]);
+        this.processMixedLoop(obj.stage1E_Unk8, storage.stage1E_Unk8, ["keys"]);
+        this.processMixedLoop(obj.stage1F_Unk9, storage.stage1F_Unk9, ["keys"]);
+
+        //Key Sync
+        Object.keys(obj).forEach((key: string) => {
+          if (key.includes("stage")) {
+            if (storage[key].keys !== obj[key].keys) {
+              storage[key].keys = obj[key].keys;
+            }
+          }
+        });
+        
         accept(true);
       }).catch((err: string) => {
         console.log(err);

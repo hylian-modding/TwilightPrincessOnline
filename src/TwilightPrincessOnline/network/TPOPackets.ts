@@ -2,6 +2,8 @@ import {
   Packet, UDPPacket
 } from 'modloader64_api/ModLoaderDefaultImpls';
 import { INetworkPlayer } from 'modloader64_api/NetworkHandler';
+import { IStageInfo } from 'TwilightPrincess/API/TPAPI';
+import { StageInfo } from 'TwilightPrincess/src/StageInfo';
 
 export class PacketWithTimeStamp extends Packet{
   timestamp: number = Date.now();
@@ -109,25 +111,19 @@ export class TPO_EventFlagUpdate extends Packet {
 }
 
 export class TPO_ClientSceneContextUpdate extends Packet {
-  chests: Buffer;
-  switches: Buffer;
-  collect: Buffer;
-  stage: number;
+  stage: IStageInfo;
+  id: number;
   world: number;
 
   constructor(
-    chests: Buffer,
-    switches: Buffer,
-    collect: Buffer,
+    stage: IStageInfo,
     lobby: string,
-    stage: number,
+    id: number,
     world: number
   ) {
     super('TPO_ClientSceneContextUpdate', 'TPOnline', lobby, false);
-    this.chests = chests;
-    this.switches = switches;
-    this.collect = collect;
     this.stage = stage;
+    this.id = id;
     this.world = world;
   }
 }

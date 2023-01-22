@@ -10,3 +10,6 @@ cores/
 modloader64-config.json
 modloader64-p2-config.json
 src/cheatmenu.pak
+*.pak
+ModLoader64-config-player1.json
+ModLoader64-config-player2.json

@@ -20,6 +20,7 @@ import { InventoryItem, ITPCore, TPEvents } from "TwilightPrincess/API/TPAPI";
 import { parseFlagChanges } from "./save/parseFlagChanges";
 import * as API from "TwilightPrincess/API/TPAPI";
 import bitwise from 'bitwise';
+import { StageInfo } from "TwilightPrincess/src/StageInfo";
 
 export default class TPOnlineClient {
     @InjectCore()
@@ -111,19 +112,21 @@ export default class TPOnlineClient {
 
             let live_scene_chests: Buffer = this.core.save.stage_Live.chests;
             let live_scene_switches: Buffer = this.core.save.stage_Live.switches;
-            let live_scene_collect: Buffer = this.core.save.stage_Live.items;
+            let live_scene_items: Buffer = this.core.save.stage_Live.items;
+            let live_scene_dungeon: Buffer = this.core.save.stage_Live.dungeonItem;
             let save_scene_data: Buffer = this.core.global.getSaveDataForCurrentScene();
             let save: Buffer = Buffer.alloc(0x20);
 
             live_scene_chests.copy(save, 0x0); // Chests
             live_scene_switches.copy(save, 0x8); // Switches
-            live_scene_collect.copy(save, 0x18); // Collectables
+            live_scene_items.copy(save, 0x18); // Collectables
             save[0x1C] = this.core.save.stage_Live.keys; // Key Count
+            live_scene_items.copy(save, 0x1D); // Dungeon Items
 
             let save_hash_2: string = this.ModLoader.utils.hashBuffer(save);
             if (save_hash_2 !== this.clientStorage.autoSaveHash) {
                 this.ModLoader.logger.info('autosaveSceneData()');
-                save_scene_data.copy(save, 0x1D, 0x1D);
+                save_scene_data.copy(save, 0x1E, 0x1E, 0x1F);
                 for (let i = 0; i < save_scene_data.byteLength; i++) {
                     save_scene_data[i] |= save[i];
                 }
@@ -133,7 +136,7 @@ export default class TPOnlineClient {
                 return;
             }
             this.core.global.writeSaveDataForCurrentScene(save_scene_data);
-            this.ModLoader.clientSide.sendPacket(new TPO_ClientSceneContextUpdate(live_scene_chests, live_scene_switches, live_scene_collect, this.ModLoader.clientLobby, this.core.global.current_stage_id, this.clientStorage.world));
+            this.ModLoader.clientSide.sendPacket(new TPO_ClientSceneContextUpdate(this.core.save.stage_Live, this.ModLoader.clientLobby, this.core.global.current_stage_id, this.clientStorage.world));
         }
     }
 
@@ -344,27 +347,54 @@ export default class TPOnlineClient {
         ) {
             return;
         }
-        if (this.core.global.current_stage_id !== packet.stage) {
-            return;
-        }
         if (packet.world !== this.clientStorage.world) return;
-        let buf1: Buffer = this.core.save.stage_Live.chests;
-        if (Object.keys(parseFlagChanges(packet.chests, buf1) > 0)) {
-            this.core.save.stage_Live.chests = buf1;
-        }
 
-        let buf2: Buffer = this.core.save.stage_Live.switches;
-        if (Object.keys(parseFlagChanges(packet.switches, buf2) > 0)) {
-            this.core.save.stage_Live.switches = buf2;
-        }
+        let stage = new StageInfo(this.ModLoader.emulator, packet.id);
+        let chests = stage.chests
+        let switches = stage.switches
+        let items = stage.items
+        let dungeonItem = stage.dungeonItem
 
-        let buf3: Buffer = this.core.save.stage_Live.items;
-        if (Object.keys(parseFlagChanges(packet.collect, buf3) > 0)) {
-            this.core.save.stage_Live.items = buf3;
+        parseFlagChanges(packet.stage.chests, chests);
+        parseFlagChanges(packet.stage.switches, switches);
+        parseFlagChanges(packet.stage.items, items);
+        parseFlagChanges(packet.stage.dungeonItem, dungeonItem);
+
+        stage.chests = chests;
+        stage.switches = switches;
+        stage.items = items;
+        stage.dungeonItem = dungeonItem;
+        stage.keys = packet.stage.keys;
+
+        if (this.core.global.current_stage_id === packet.id) {
+            let buf1: Buffer = this.core.save.stage_Live.chests;
+            if (Object.keys(parseFlagChanges(packet.stage.chests, buf1) > 0)) {
+                this.core.save.stage_Live.chests = buf1;
+            }
+
+            let buf2: Buffer = this.core.save.stage_Live.switches;
+            if (Object.keys(parseFlagChanges(packet.stage.switches, buf2) > 0)) {
+                this.core.save.stage_Live.switches = buf2;
+            }
+
+            let buf3: Buffer = this.core.save.stage_Live.items;
+            if (Object.keys(parseFlagChanges(packet.stage.items, buf3) > 0)) {
+                this.core.save.stage_Live.items = buf3;
+            }
+
+            let buf4: number = packet.stage.keys;
+            if (buf4 !== this.core.save.stage_Live.keys) {
+                this.core.save.stage_Live.keys = buf4;
+            }
+
+            let buf5: Buffer = this.core.save.stage_Live.dungeonItem;
+            if (Object.keys(parseFlagChanges(packet.stage.dungeonItem, buf5) > 0)) {
+                this.core.save.stage_Live.dungeonItem = buf5;
+            }
+            // Update hash.
+            this.clientStorage.saveManager.createSave();
+            this.clientStorage.lastPushHash = this.clientStorage.saveManager.hash;
         }
-        // Update hash.
-        this.clientStorage.saveManager.createSave();
-        this.clientStorage.lastPushHash = this.clientStorage.saveManager.hash;
     }
 
     @onTick()

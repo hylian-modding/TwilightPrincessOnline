@@ -195,7 +195,7 @@ export default class TPOnlineServer {
 
     @ServerNetworkHandler('TPO_ClientSceneContextUpdate')
     onSceneContextSync_server(packet: TPO_ClientSceneContextUpdate) {
-        this.sendPacketToPlayersInScene(packet);
+        this.ModLoader.serverSide.sendPacket(packet);
     }
 
     @ServerNetworkHandler('TPO_UpdateSaveDataPacket')
