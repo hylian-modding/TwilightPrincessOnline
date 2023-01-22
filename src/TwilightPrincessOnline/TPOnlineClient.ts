@@ -387,7 +387,7 @@ export default class TPOnlineClient {
                 this.core.save.stage_Live.keys = buf4;
             }
 
-            let buf5: Buffer = this.core.save.stage_Live.dungeonItem;
+            let buf5: Buffer = packet.stage.dungeonItem;
             if (Object.keys(parseFlagChanges(packet.stage.dungeonItem, buf5) > 0)) {
                 this.core.save.stage_Live.dungeonItem = buf5;
             }
