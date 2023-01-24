@@ -178,12 +178,19 @@ export default class TPOnlineServer {
         parseFlagChanges(packet.eventFlags, eventFlags);
         
         // Mask some bits out that are potential softlocks
-        eventFlags[0x5] &= 0x7F;  // Ilia & Collin kidnapped
+        eventFlags[0x1] &= 0xEF;  //Talked to Fado before goats 1
+        eventFlags[0x5] &= 0x77;  // Ilia & Collin kidnapped || Entered Ordon Shield house as wolf at night
+        eventFlags[0xD] &= 0x7E;  // Midna text after Ordon shield obtained || Met Princess Zelda in sewers (Needed to spawn Fado in ranch)
         eventFlags[0x15] &= 0x3F; // Goats Day 2 Finished || Warping in Lanayru Province disabled
         eventFlags[0x1D] &= 0xFE; // Mini-map retracted (d-pad left or when there's no map)
         eventFlags[0x1F] &= 0x0F; // Fyrus Boss has fight state flags in here?..
         eventFlags[0x40] &= 0xFB; // Declined to help Rusl in N. Faron (OFF after saying yes)
-        eventFlags[0x42] &= 0xBF; // Goats Day 3 Finished
+        //eventFlags[0x42] &= 0xBF; // Goats Day 3 Finished
+        //eventFlags[0x45] &= 0xEF; // Ordon Day 2 over (Set in Goats 2 intro cutscene)
+        eventFlags[0x47] &= 0xF3; // Talked to Ilia before calling Epona - Ordon Day 1 || Talked to Ilia after calling Epona - Ordon Day 1
+        eventFlags[0x49] &= 0xFE; // talked to Talo in cage day 2
+        eventFlags[0x4A] &= 0xAF; // Ordon Day 1 finished (Set when leaving Ranch after Goats 1) || Saw Talo in cage cutscene - Ordon Day 2
+        eventFlags[0x4C] &= 0xFE; // Rescued Talo and the Monkey - Ordon Day 2
         eventFlags[0x52] &= 0x00; // More Fyrus boss flags
         eventFlags[0x61] &= 0xBF; // Returned to Ordon from Sewers (Midna Z disabled if ON)
         eventFlags[0x5F] &= 0xF8; // Trill (Faron bird shopkeep) flags

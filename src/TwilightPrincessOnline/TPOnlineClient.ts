@@ -41,6 +41,7 @@ export default class TPOnlineClient {
     synctimerMax: number = 60 * 5;
     syncPending: boolean = false;
 
+    ordonDayLoop!: string | undefined;
 
     @EventHandler(EventsClient.ON_PLAYER_JOIN)
     onPlayerJoined(player: INetworkPlayer) {
@@ -325,16 +326,33 @@ export default class TPOnlineClient {
         ) {
             return;
         }
+        if (packet.player.uuid === this.ModLoader.me.uuid) return;
         console.log("onFlagUpdate Client");
-
         for (let i = 0; i < packet.eventFlags.byteLength; i++) {
             if (packet.eventFlags[i] !== this.clientStorage.eventFlags[i]) {
+                //Ordon Day 1 Over causes softlocks when synced while in the ranch, so lets hold it until the player is not in the ranch before setting it
+                if (i === 0x4A && bitwise.byte.read(packet.eventFlags[i] as any)[1] === 1 && this.core.global.current_scene_name === "F_SP00") {
+                    console.log("ORDON DAY 1 OVER LOOP")
+                    if (!this.ordonDayLoop && bitwise.byte.read(this.clientStorage.eventFlags[i] as any)[1] === 0x0) {
+                        this.ordonDayLoop = this.ModLoader.utils.setIntervalFrames(() => {
+                            if (this.core.global.current_scene_name !== "F_SP00" && this.core.global.current_scene_frame > 60) {
+                                console.log("ORDON DAY 1 OVER SYNC");
+                                console.log(`Writing flag: 0x${i.toString(16)}, storage: 0x${this.clientStorage.eventFlags[i].toString(16)}, incoming: 0x${packet.eventFlags[i].toString(16)} `);
+                                parseFlagChanges(packet.eventFlags, this.clientStorage.eventFlags);
+                                this.core.save.eventFlags = this.clientStorage.eventFlags;
+                                this.ModLoader.utils.clearIntervalFrames(this.ordonDayLoop!);
+                                this.ordonDayLoop = undefined;
+                            }
+                        }, 20);
+                    }
+                }
                 console.log(`Writing flag: 0x${i.toString(16)}, storage: 0x${this.clientStorage.eventFlags[i].toString(16)}, incoming: 0x${packet.eventFlags[i].toString(16)} `);
+
             }
         }
-        let eventFlags = this.clientStorage.eventFlags;
-        parseFlagChanges(packet.eventFlags, eventFlags);
-        this.clientStorage.eventFlags = eventFlags;
+        let eventFlagsPacket = this.ModLoader.utils.cloneBuffer(packet.eventFlags);
+        eventFlagsPacket[0x4A] &= 0xBF;
+        parseFlagChanges(eventFlagsPacket, this.clientStorage.eventFlags);
         this.core.save.eventFlags = this.clientStorage.eventFlags;
     }
 
