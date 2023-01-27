@@ -21,6 +21,7 @@ import { parseFlagChanges } from "./save/parseFlagChanges";
 import * as API from "TwilightPrincess/API/TPAPI";
 import bitwise from 'bitwise';
 import { StageInfo } from "TwilightPrincess/src/StageInfo";
+import { PuppetOverlord } from "./puppet/PuppetOverlord";
 
 export default class TPOnlineClient {
     @InjectCore()
@@ -31,6 +32,9 @@ export default class TPOnlineClient {
 
     @ParentReference()
     parent!: IPlugin;
+
+    @SidedProxy(ProxySide.CLIENT, PuppetOverlord)
+    puppets!: PuppetOverlord;
 
     LobbyConfig: ITPOnlineLobbyConfig = {} as ITPOnlineLobbyConfig;
     clientStorage: TPOnlineStorageClient = new TPOnlineStorageClient();
@@ -58,6 +62,9 @@ export default class TPOnlineClient {
     @Preinit()
     preinit() {
         this.config = this.ModLoader.config.registerConfigCategory("TPOnline") as TPOnlineConfigCategory;
+        if (this.puppets !== undefined) {
+            this.puppets.clientStorage = this.clientStorage;
+        }
     }
 
     @Init()

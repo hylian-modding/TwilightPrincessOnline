@@ -1,3 +1,4 @@
+import { PuppetData } from '@TwilightPrincessOnline/puppet/PuppetData';
 import {
   Packet, UDPPacket
 } from 'modloader64_api/ModLoaderDefaultImpls';
@@ -107,6 +108,24 @@ export class TPO_EventFlagUpdate extends Packet {
   ) {
     super('TPO_EventFlagUpdate', 'TPOnline', lobby, false);
     this.eventFlags = eventFlags;
+  }
+}
+
+export class TPO_PuppetPacket {
+  data: PuppetData;
+
+  constructor(puppetData: PuppetData, lobby: string) {
+    this.data = puppetData;
+  }
+}
+
+export class TPO_PuppetWrapperPacket extends UDPPacket {
+
+  data: string;
+
+  constructor(packet: TPO_PuppetPacket, lobby: string) {
+    super('TPO_PuppetPacket', 'TPO', lobby, false);
+    this.data = JSON.stringify(packet);
   }
 }
 

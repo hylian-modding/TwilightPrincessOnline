@@ -14,6 +14,7 @@ import TPSerialize from "./storage/TPSerialize";
 import { InventoryItem, ITPCore } from "TwilightPrincess/API/TPAPI";
 import { parseFlagChanges } from "./save/parseFlagChanges";
 import bitwise from 'bitwise';
+import { PuppetOverlord } from "./puppet/PuppetOverlord";
 
 export default class TPOnlineServer {
 
@@ -23,6 +24,8 @@ export default class TPOnlineServer {
     ModLoader!: IModLoaderAPI;
     @ParentReference()
     parent!: IPlugin;
+    @SidedProxy(ProxySide.SERVER, PuppetOverlord)
+    puppets!: PuppetOverlord;
 
     sendPacketToPlayersInScene(packet: IPacketHeader) {
         try {
@@ -176,7 +179,7 @@ export default class TPOnlineServer {
 
         let eventFlags = storage.eventFlags;
         parseFlagChanges(packet.eventFlags, eventFlags);
-        
+
         // Mask some bits out that are potential softlocks
         eventFlags[0x1] &= 0xEF;  //Talked to Fado before goats 1
         eventFlags[0x5] &= 0x77;  // Ilia & Collin kidnapped || Entered Ordon Shield house as wolf at night
