@@ -73,6 +73,33 @@ class TwilightPrincessOnline implements IPlugin, ITPOnlineHelpers, IPluginServer
 
     @EventHandler(ModLoaderEvents.ON_ROM_PATCHED)
     onRomPatched(evt: any) {
+        //Set up extended memory
+        let iniPath: string = "./data/dolphin/Config/Dolphin.ini";
+        if (!fs.existsSync(`./data/dolphin/Config/Dolphin.ini`)) {
+            if (!fs.existsSync(`./data`)) fs.mkdirSync(`./data`);
+            if (!fs.existsSync(`./data/dolphin`)) fs.mkdirSync(`./data/dolphin`);
+            if (!fs.existsSync(`./data/dolphin/Config`)) fs.mkdirSync(`./data/dolphin/Config`);
+            fs.writeFileSync(iniPath, Buffer.alloc(0));
+        }
+        let ini: string = fs.readFileSync(iniPath, "utf8");
+        if (!ini.includes("[Core]")) {
+            console.log("[Core] not found!")
+            ini.concat("[Core]\nRAMOverrideEnable = True\nMEM1Size = 0x04000000");
+        }
+        if (ini.includes("RAMOverrideEnable = False")) ini.replace("RAMOverrideEnable = False", "RAMOverrideEnable = True");
+        else if (ini.includes("[Core]") && !ini.includes("RAMOverrideEnable")) {
+            console.log("RAMOverrideEnable not found!")
+            let index = ini.indexOf(`[Core]`);
+            ini = [ini.slice(0, index + 6), "\nRAMOverrideEnable = True", ini.slice(index + 6)].join('');
+        }
+        if (ini.includes("MEM1Size = 0x01800000")) ini.replace("MEM1Size = 0x01800000", "MEM1Size = 0x04000000");
+        else if (ini.includes("[Core]") && !ini.includes("MEM1Size")) {
+            console.log("MEM1Size not found!")
+            let index = ini.indexOf(`[Core]`);
+            ini = [ini.slice(0, index + 6), "\nMEM1Size = 0x04000000", ini.slice(index + 6)].join('');
+        }
+        fs.writeFileSync(iniPath, ini);
+        
         let rom: Buffer = evt.rom;
         rom.writeUInt32BE(0x03000000, 0x444);
         evt.rom = rom;
