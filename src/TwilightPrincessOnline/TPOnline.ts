@@ -74,6 +74,7 @@ class TwilightPrincessOnline implements IPlugin, ITPOnlineHelpers, IPluginServer
     @EventHandler(ModLoaderEvents.ON_ROM_PATCHED)
     onRomPatched(evt: any) {
         //Set up extended memory
+        //Set up extended memory
         let iniPath: string = "./data/dolphin/Config/Dolphin.ini";
         if (!fs.existsSync(`./data/dolphin/Config/Dolphin.ini`)) {
             if (!fs.existsSync(`./data`)) fs.mkdirSync(`./data`);
@@ -86,20 +87,29 @@ class TwilightPrincessOnline implements IPlugin, ITPOnlineHelpers, IPluginServer
             console.log("[Core] not found!")
             ini.concat("[Core]\nRAMOverrideEnable = True\nMEM1Size = 0x04000000");
         }
-        if (ini.includes("RAMOverrideEnable = False")) ini.replace("RAMOverrideEnable = False", "RAMOverrideEnable = True");
-        else if (ini.includes("[Core]") && !ini.includes("RAMOverrideEnable")) {
+        if (ini.includes("RAMOverrideEnable = False")) {
+            console.log(`RAMOverrideEnable = False -> RAMOverrideEnable = True`);
+            let index = ini.indexOf(`RAMOverrideEnable = False`);
+            ini = [ini.slice(0, index + 20), "True", ini.slice(index + 25)].join('');
+        }
+        else if (ini.includes("[Core]") && !ini.includes("RAMOverrideEnable = False")) {
+            if (ini.includes("RAMOverrideEnable = True") == true) return;
             console.log("RAMOverrideEnable not found!")
             let index = ini.indexOf(`[Core]`);
             ini = [ini.slice(0, index + 6), "\nRAMOverrideEnable = True", ini.slice(index + 6)].join('');
         }
-        if (ini.includes("MEM1Size = 0x01800000")) ini.replace("MEM1Size = 0x01800000", "MEM1Size = 0x04000000");
+        if (ini.includes("MEM1Size = 0x01800000")) {
+            console.log(`MEM1Size = 0x01800000 -> MEM1Size = 0x04000000`);
+            let index = ini.indexOf(`0x01800000`);
+            ini = [ini.slice(0, index), "0x04000000", ini.slice(index + 10)].join('');
+        }
         else if (ini.includes("[Core]") && !ini.includes("MEM1Size")) {
             console.log("MEM1Size not found!")
             let index = ini.indexOf(`[Core]`);
             ini = [ini.slice(0, index + 6), "\nMEM1Size = 0x04000000", ini.slice(index + 6)].join('');
         }
         fs.writeFileSync(iniPath, ini);
-        
+
         let rom: Buffer = evt.rom;
         rom.writeUInt32BE(0x03000000, 0x444);
         evt.rom = rom;
