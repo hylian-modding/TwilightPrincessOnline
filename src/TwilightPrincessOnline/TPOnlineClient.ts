@@ -73,6 +73,7 @@ export default class TPOnlineClient {
 
     @Postinit()
     postinit() {
+        this.clientStorage.localization = JSON.parse(fs.readFileSync(__dirname + '/localization/scene_names.json').toString());
         let status: DiscordStatus = new DiscordStatus('Playing TPOnline', 'On the title screen');
         status.smallImageKey = 'TPO';
         status.partyId = this.ModLoader.clientLobby;
@@ -205,13 +206,15 @@ export default class TPOnlineClient {
                 scene
             )
         );
-        this.ModLoader.logger.info('client: I moved to scene ' + scene + '.');
+        this.ModLoader.logger.info('client: I moved to scene ' + (this.clientStorage.localization[scene] || scene) + '.');
         if (this.core.helper.isSceneNameValid()) {
             this.ModLoader.gui.setDiscordStatus(
                 new DiscordStatus(
                     'Playing TPOnline',
                     'In ' +
+                    this.clientStorage.localization[
                     scene
+                    ]
                 )
             );
         }
@@ -240,7 +243,7 @@ export default class TPOnlineClient {
             'client receive: Player ' +
             packet.player.nickname +
             ' moved to scene ' +
-            packet.scene
+            this.clientStorage.localization[packet.scene]
             +
             '.'
         );
